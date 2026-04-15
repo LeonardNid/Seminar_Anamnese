@@ -1,30 +1,31 @@
 { pkgs ? import <nixpkgs> {} }:
 
-let
-  lib-path = pkgs.lib.makeLibraryPath [
-    pkgs.stdenv.cc.cc.lib
-    pkgs.zlib
-    pkgs.ffmpeg.lib
-  ];
-in
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    python3
-    python3Packages.pip
-    python3Packages.virtualenv
+    python312
+    python312Packages.pip
+    python312Packages.setuptools
+    python312Packages.wheel
+
+    # Systembibliotheken
     stdenv.cc.cc.lib
     zlib
     ffmpeg
   ];
 
   shellHook = ''
-    export LD_LIBRARY_PATH="${lib-path}:$LD_LIBRARY_PATH"
-    
-    echo "Python environment is ready."
-    echo "To get started:"
-    echo "1. python -m venv .venv"
-    echo "2. source .venv/bin/activate"
-    echo "3. pip install -r requirements.txt"
-    echo "4. streamlit run app.py"
+    # venv anlegen falls noch nicht vorhanden
+    if [ ! -d ".venv" ]; then
+      echo "Erstelle neues venv..."
+      python3 -m venv .venv
+    fi
+
+    source .venv/bin/activate
+
+    export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:${pkgs.ffmpeg.lib}/lib:$LD_LIBRARY_PATH"
+
+    echo "Python-Umgebung aktiv: $(which python) ($(python --version))"
+    echo "Pakete installieren:  pip install -r requirements.txt"
+    echo "App starten:          streamlit run app.py"
   '';
 }
