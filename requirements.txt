@@ -1,0 +1,8 @@
+streamlit
+openai
+python-dotenv
+audio-recorder-streamlit
+requests
+pyarrow
+faster-whisper
+pyannote.audio==4.0.4

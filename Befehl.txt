@@ -1,0 +1,2 @@
+Mp4 in m4a
+nix-shell -p ffmpeg --run 'ffmpeg -i "2026-04-06 09-40-06.mp4" -vn -c:a copy "2026-04-06 09-40-06.m4a"'
