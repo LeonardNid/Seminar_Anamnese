@@ -6,12 +6,6 @@
 __pycache__/
 *.py[cod]
 
-# Audiodateien (zu groß für git)
-*.wav
-*.mp3
-*.m4a
-*.ogg
-
 # Generierte Dateien
 history.json
 
