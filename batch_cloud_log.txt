@@ -1,0 +1,163 @@
+[11:16:05] === Cloud Batch Start ===
+[11:16:05] STT: Speechmatics (Cloud)  |  LLM: OpenAI GPT-4o
+[11:16:05] Gesamt: 11 | Bereits erledigt: 0 | Verbleibend: 11
+[11:16:05] 
+============================================================
+[11:16:05] Job 1/11: Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav
+[11:16:05] ============================================================
+[11:16:05] Dateigröße: 188.9 MB
+[11:16:05] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:17:17]   Speechmatics Job submitted: ub6jq7eaxi
+[11:17:48]   Speechmatics polling... status=running (30s elapsed)
+[11:18:09] STT fertig: 123.95s | 15643 Zeichen
+[11:18:09] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:18:33] Format fertig: 24.1s | 17053 Zeichen
+[11:18:33] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:18:39] SOAP fertig: 5.41s | 2196 Zeichen
+[11:18:39] Gesamt: 153.46s  (STT 123.95s + Format 24.1s + SOAP 5.41s)
+[11:18:39] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:18:39] 
+============================================================
+[11:18:39] Job 2/11: ChaosLapInMitte.wav
+[11:18:39] ============================================================
+[11:18:39] Dateigröße: 20.4 MB
+[11:18:39] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:18:48]   Speechmatics Job submitted: zoh72zb1ts
+[11:18:59] STT fertig: 20.03s | 1850 Zeichen
+[11:18:59] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:19:02] Format fertig: 3.9s | 1854 Zeichen
+[11:19:02] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:19:05] SOAP fertig: 2.45s | 1050 Zeichen
+[11:19:05] Gesamt: 26.39s  (STT 20.03s + Format 3.9s + SOAP 2.45s)
+[11:19:05] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:19:05] 
+============================================================
+[11:19:05] Job 3/11: GedankenprüngeLapInMitte.wav
+[11:19:05] ============================================================
+[11:19:05] Dateigröße: 14.0 MB
+[11:19:05] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:19:12]   Speechmatics Job submitted: qdnj41htx4
+[11:19:18] STT fertig: 12.69s | 1251 Zeichen
+[11:19:18] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:19:20] Format fertig: 2.85s | 1252 Zeichen
+[11:19:20] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:19:22] SOAP fertig: 2.0s | 830 Zeichen
+[11:19:22] Gesamt: 17.53s  (STT 12.69s + Format 2.85s + SOAP 2.0s)
+[11:19:22] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:19:22] 
+============================================================
+[11:19:22] Job 4/11: MeinungswechselLapinMitte.wav
+[11:19:22] ============================================================
+[11:19:22] Dateigröße: 13.3 MB
+[11:19:22] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:19:28]   Speechmatics Job submitted: e5ym1c43e7
+[11:19:33] STT fertig: 10.37s | 1133 Zeichen
+[11:19:33] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:19:36] Format fertig: 2.72s | 1219 Zeichen
+[11:19:36] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:19:38] SOAP fertig: 2.0s | 884 Zeichen
+[11:19:38] Gesamt: 15.09s  (STT 10.37s + Format 2.72s + SOAP 2.0s)
+[11:19:38] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:19:38] 
+============================================================
+[11:19:38] Job 5/11: OriginalDCEng.m4a
+[11:19:38] ============================================================
+[11:19:38] Dateigröße: 2.2 MB
+[11:19:38] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:19:39]   Speechmatics Job submitted: 8f1u7iyrfq
+[11:19:54] STT fertig: 16.82s | 1368 Zeichen
+[11:19:54] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:19:57] Format fertig: 2.96s | 1371 Zeichen
+[11:19:57] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:20:02] SOAP fertig: 4.62s | 1520 Zeichen
+[11:20:02] Gesamt: 24.41s  (STT 16.82s + Format 2.96s + SOAP 4.62s)
+[11:20:02] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:20:02] 
+============================================================
+[11:20:02] Job 6/11: OriginalDC.m4a
+[11:20:02] ============================================================
+[11:20:02] Dateigröße: 2.2 MB
+[11:20:02] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:20:03]   Speechmatics Job submitted: vcto70svmu
+[11:20:13] STT fertig: 11.31s | 1650 Zeichen
+[11:20:13] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:20:17] Format fertig: 4.11s | 1636 Zeichen
+[11:20:17] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:20:22] SOAP fertig: 4.26s | 1251 Zeichen
+[11:20:22] Gesamt: 19.67s  (STT 11.31s + Format 4.11s + SOAP 4.26s)
+[11:20:22] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:20:22] 
+============================================================
+[11:20:22] Job 7/11: OriginalDCWhiteNoise.m4a
+[11:20:22] ============================================================
+[11:20:22] Dateigröße: 2.1 MB
+[11:20:22] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:20:22]   Speechmatics Job submitted: 822chq8jlk
+[11:20:33] STT fertig: 11.3s | 1217 Zeichen
+[11:20:33] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:20:36] Format fertig: 3.18s | 1311 Zeichen
+[11:20:36] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:20:45] SOAP fertig: 8.81s | 1426 Zeichen
+[11:20:45] Gesamt: 23.3s  (STT 11.3s + Format 3.18s + SOAP 8.81s)
+[11:20:45] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:20:45] 
+============================================================
+[11:20:45] Job 8/11: OriginalLapBeiArzt.wav
+[11:20:45] ============================================================
+[11:20:45] Dateigröße: 18.7 MB
+[11:20:45] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:20:50]   Speechmatics Job submitted: 01egskqw4x
+[11:21:00] STT fertig: 15.5s | 1588 Zeichen
+[11:21:00] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:21:03] Format fertig: 2.66s | 1574 Zeichen
+[11:21:03] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:21:06] SOAP fertig: 2.76s | 1093 Zeichen
+[11:21:06] Gesamt: 20.92s  (STT 15.5s + Format 2.66s + SOAP 2.76s)
+[11:21:06] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:21:06] 
+============================================================
+[11:21:06] Job 9/11: OriginalLapInMitte.wav
+[11:21:06] ============================================================
+[11:21:06] Dateigröße: 17.5 MB
+[11:21:06] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:21:12]   Speechmatics Job submitted: w7wz9wgaqp
+[11:21:22] STT fertig: 16.52s | 1489 Zeichen
+[11:21:22] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:21:25] Format fertig: 2.8s | 1583 Zeichen
+[11:21:25] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:21:29] SOAP fertig: 3.76s | 1589 Zeichen
+[11:21:29] Gesamt: 23.08s  (STT 16.52s + Format 2.8s + SOAP 3.76s)
+[11:21:29] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:21:29] 
+============================================================
+[11:21:29] Job 10/11: SelbstkorrekturLapInMitte.wav
+[11:21:29] ============================================================
+[11:21:29] Dateigröße: 14.5 MB
+[11:21:29] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:21:33]   Speechmatics Job submitted: px9dxj3545
+[11:21:43] STT fertig: 14.14s | 1265 Zeichen
+[11:21:43] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:21:46] Format fertig: 3.19s | 1260 Zeichen
+[11:21:46] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:21:49] SOAP fertig: 2.81s | 1242 Zeichen
+[11:21:49] Gesamt: 20.14s  (STT 14.14s + Format 3.19s + SOAP 2.81s)
+[11:21:49] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:21:49] 
+============================================================
+[11:21:49] Job 11/11: UnterbrechungLapInMitte.wav
+[11:21:49] ============================================================
+[11:21:49] Dateigröße: 10.0 MB
+[11:21:49] Phase 1/3: STT (Speechmatics Cloud) läuft …
+[11:21:54]   Speechmatics Job submitted: nry6srxgkc
+[11:21:59] STT fertig: 10.04s | 964 Zeichen
+[11:21:59] Phase 2/3: Transkript formatieren (GPT-4o) …
+[11:22:01] Format fertig: 1.93s | 952 Zeichen
+[11:22:01] Phase 3/3: SOAP-Notes generieren (GPT-4o) …
+[11:22:04] SOAP fertig: 3.44s | 1271 Zeichen
+[11:22:04] Gesamt: 15.4s  (STT 10.04s + Format 1.93s + SOAP 3.44s)
+[11:22:05] Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓
+[11:22:05] 
+============================================================
+[11:22:05] === BATCH ABGESCHLOSSEN ===
+[11:22:05] Erfolgreich gespeichert: 11/11
+[11:22:05] Dateien: ['Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav', 'ChaosLapInMitte.wav', 'GedankenprüngeLapInMitte.wav', 'MeinungswechselLapinMitte.wav', 'OriginalDCEng.m4a', 'OriginalDC.m4a', 'OriginalDCWhiteNoise.m4a', 'OriginalLapBeiArzt.wav', 'OriginalLapInMitte.wav', 'SelbstkorrekturLapInMitte.wav', 'UnterbrechungLapInMitte.wav']
