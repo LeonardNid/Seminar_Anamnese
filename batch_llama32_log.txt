@@ -1,0 +1,141 @@
+[11:42:27] === Llama3.2 Batch Start (STT reused from Whisper) ===
+[11:42:27] LLM: llama3.2  |  STT: wiederverwendet von Whisper Large-v3-turbo
+[11:42:27] Whisper-Transkripte geladen: 11 Dateien
+[11:42:27]   [OK] Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav
+[11:42:27]   [OK] ChaosLapInMitte.wav
+[11:42:27]   [OK] GedankenprüngeLapInMitte.wav
+[11:42:27]   [OK] MeinungswechselLapinMitte.wav
+[11:42:27]   [OK] OriginalDCEng.m4a
+[11:42:27]   [OK] OriginalDC.m4a
+[11:42:27]   [OK] OriginalDCWhiteNoise.m4a
+[11:42:27]   [OK] OriginalLapBeiArzt.wav
+[11:42:27]   [OK] OriginalLapInMitte.wav
+[11:42:27]   [OK] SelbstkorrekturLapInMitte.wav
+[11:42:27]   [OK] UnterbrechungLapInMitte.wav
+[11:42:27] 
+Gesamt: 11 | Bereits erledigt: 0 | Verbleibend: 11
+[11:42:27] 
+============================================================
+[11:42:27] Job 1/11: Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav
+[11:42:27] ============================================================
+[11:42:27] Rohtranskript: 14258 Zeichen | Audio: 188.9 MB (aus history)
+[11:42:27] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:45:15] Format fertig: 168.51s | 1311 Zeichen
+[11:45:15] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:46:09] SOAP fertig: 53.94s | 1606 Zeichen
+[11:46:09] Gesamt (LLM only): 222.45s  (Format 168.51s + SOAP 53.94s)
+[11:46:09] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:46:09] 
+============================================================
+[11:46:09] Job 2/11: ChaosLapInMitte.wav
+[11:46:09] ============================================================
+[11:46:09] Rohtranskript: 1721 Zeichen | Audio: 20.4 MB (aus history)
+[11:46:09] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:47:13] Format fertig: 63.59s | 1687 Zeichen
+[11:47:13] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:47:55] SOAP fertig: 42.6s | 1051 Zeichen
+[11:47:55] Gesamt (LLM only): 106.2s  (Format 63.59s + SOAP 42.6s)
+[11:47:55] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:47:55] 
+============================================================
+[11:47:55] Job 3/11: GedankenprüngeLapInMitte.wav
+[11:47:55] ============================================================
+[11:47:55] Rohtranskript: 1220 Zeichen | Audio: 14.0 MB (aus history)
+[11:47:55] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:48:39] Format fertig: 43.7s | 1138 Zeichen
+[11:48:39] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:49:16] SOAP fertig: 36.54s | 986 Zeichen
+[11:49:16] Gesamt (LLM only): 80.24s  (Format 43.7s + SOAP 36.54s)
+[11:49:16] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:49:16] 
+============================================================
+[11:49:16] Job 4/11: MeinungswechselLapinMitte.wav
+[11:49:16] ============================================================
+[11:49:16] Rohtranskript: 1257 Zeichen | Audio: 13.3 MB (aus history)
+[11:49:16] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:50:04] Format fertig: 48.29s | 1247 Zeichen
+[11:50:04] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:50:41] SOAP fertig: 36.58s | 890 Zeichen
+[11:50:41] Gesamt (LLM only): 84.87s  (Format 48.29s + SOAP 36.58s)
+[11:50:41] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:50:41] 
+============================================================
+[11:50:41] Job 5/11: OriginalDCEng.m4a
+[11:50:41] ============================================================
+[11:50:41] Rohtranskript: 1514 Zeichen | Audio: 2.2 MB (aus history)
+[11:50:41] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:51:27] Format fertig: 46.35s | 1463 Zeichen
+[11:51:27] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:52:08] SOAP fertig: 40.89s | 1087 Zeichen
+[11:52:08] Gesamt (LLM only): 87.24s  (Format 46.35s + SOAP 40.89s)
+[11:52:08] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:52:08] 
+============================================================
+[11:52:08] Job 6/11: OriginalDC.m4a
+[11:52:08] ============================================================
+[11:52:08] Rohtranskript: 1677 Zeichen | Audio: 2.2 MB (aus history)
+[11:52:08] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:53:10] Format fertig: 62.66s | 1703 Zeichen
+[11:53:10] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:54:01] SOAP fertig: 50.13s | 1192 Zeichen
+[11:54:01] Gesamt (LLM only): 112.79s  (Format 62.66s + SOAP 50.13s)
+[11:54:01] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:54:01] 
+============================================================
+[11:54:01] Job 7/11: OriginalDCWhiteNoise.m4a
+[11:54:01] ============================================================
+[11:54:01] Rohtranskript: 1466 Zeichen | Audio: 2.1 MB (aus history)
+[11:54:01] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:54:54] Format fertig: 53.1s | 1437 Zeichen
+[11:54:54] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:55:39] SOAP fertig: 45.46s | 1158 Zeichen
+[11:55:39] Gesamt (LLM only): 98.56s  (Format 53.1s + SOAP 45.46s)
+[11:55:39] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:55:39] 
+============================================================
+[11:55:39] Job 8/11: OriginalLapBeiArzt.wav
+[11:55:39] ============================================================
+[11:55:39] Rohtranskript: 1599 Zeichen | Audio: 18.7 MB (aus history)
+[11:55:39] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:56:37] Format fertig: 58.02s | 1591 Zeichen
+[11:56:37] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:57:23] SOAP fertig: 45.74s | 1292 Zeichen
+[11:57:23] Gesamt (LLM only): 103.76s  (Format 58.02s + SOAP 45.74s)
+[11:57:23] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:57:23] 
+============================================================
+[11:57:23] Job 9/11: OriginalLapInMitte.wav
+[11:57:23] ============================================================
+[11:57:23] Rohtranskript: 1589 Zeichen | Audio: 17.5 MB (aus history)
+[11:57:23] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:58:20] Format fertig: 57.08s | 1553 Zeichen
+[11:58:20] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[11:59:06] SOAP fertig: 46.31s | 1235 Zeichen
+[11:59:06] Gesamt (LLM only): 103.38s  (Format 57.08s + SOAP 46.31s)
+[11:59:06] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[11:59:06] 
+============================================================
+[11:59:06] Job 10/11: SelbstkorrekturLapInMitte.wav
+[11:59:06] ============================================================
+[11:59:06] Rohtranskript: 1303 Zeichen | Audio: 14.5 MB (aus history)
+[11:59:06] Phase 1/2: Transkript formatieren (llama3.2) ...
+[11:59:57] Format fertig: 51.11s | 1245 Zeichen
+[11:59:57] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[12:00:46] SOAP fertig: 48.81s | 1391 Zeichen
+[12:00:46] Gesamt (LLM only): 99.91s  (Format 51.11s + SOAP 48.81s)
+[12:00:46] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[12:00:46] 
+============================================================
+[12:00:46] Job 11/11: UnterbrechungLapInMitte.wav
+[12:00:46] ============================================================
+[12:00:46] Rohtranskript: 859 Zeichen | Audio: 10.0 MB (aus history)
+[12:00:46] Phase 1/2: Transkript formatieren (llama3.2) ...
+[12:01:18] Format fertig: 32.17s | 853 Zeichen
+[12:01:18] Phase 2/2: SOAP-Notes generieren (llama3.2) ...
+[12:01:55] SOAP fertig: 37.01s | 1126 Zeichen
+[12:01:55] Gesamt (LLM only): 69.18s  (Format 32.17s + SOAP 37.01s)
+[12:01:55] Gespeichert in history.json OK  |  Checkpoint aktualisiert OK
+[12:01:55] 
+============================================================
+[12:01:55] === BATCH ABGESCHLOSSEN ===
+[12:01:55] Erfolgreich gespeichert: 11/11
