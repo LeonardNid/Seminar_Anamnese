@@ -12,10 +12,10 @@
         "audio_file": "UnterbrechungLapInMitte.wav",
         "audio_size_bytes": 10485760,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 55.64,
             "format_duration_s": 32.17,
             "soap_duration_s": 37.01,
-            "total_duration_s": 69.18,
+            "total_duration_s": 124.82,
             "raw_char_count": 859,
             "formatted_char_count": 853,
             "soap_char_count": 1126
@@ -34,10 +34,10 @@
         "audio_file": "SelbstkorrekturLapInMitte.wav",
         "audio_size_bytes": 15204352,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 127.95,
             "format_duration_s": 51.11,
             "soap_duration_s": 48.81,
-            "total_duration_s": 99.91,
+            "total_duration_s": 227.87,
             "raw_char_count": 1303,
             "formatted_char_count": 1245,
             "soap_char_count": 1391
@@ -56,10 +56,10 @@
         "audio_file": "OriginalLapInMitte.wav",
         "audio_size_bytes": 18350080,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 106.74,
             "format_duration_s": 57.08,
             "soap_duration_s": 46.31,
-            "total_duration_s": 103.38,
+            "total_duration_s": 210.13,
             "raw_char_count": 1589,
             "formatted_char_count": 1553,
             "soap_char_count": 1235
@@ -78,10 +78,10 @@
         "audio_file": "OriginalLapBeiArzt.wav",
         "audio_size_bytes": 19608371,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 141.14,
             "format_duration_s": 58.02,
             "soap_duration_s": 45.74,
-            "total_duration_s": 103.76,
+            "total_duration_s": 244.9,
             "raw_char_count": 1599,
             "formatted_char_count": 1591,
             "soap_char_count": 1292
@@ -100,10 +100,10 @@
         "audio_file": "OriginalDCWhiteNoise.m4a",
         "audio_size_bytes": 2202009,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 123.67,
             "format_duration_s": 53.1,
             "soap_duration_s": 45.46,
-            "total_duration_s": 98.56,
+            "total_duration_s": 222.23,
             "raw_char_count": 1466,
             "formatted_char_count": 1437,
             "soap_char_count": 1158
@@ -122,10 +122,10 @@
         "audio_file": "OriginalDC.m4a",
         "audio_size_bytes": 2306867,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 159.56,
             "format_duration_s": 62.66,
             "soap_duration_s": 50.13,
-            "total_duration_s": 112.79,
+            "total_duration_s": 272.35,
             "raw_char_count": 1677,
             "formatted_char_count": 1703,
             "soap_char_count": 1192
@@ -144,10 +144,10 @@
         "audio_file": "OriginalDCEng.m4a",
         "audio_size_bytes": 2306867,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 125.96,
             "format_duration_s": 46.35,
             "soap_duration_s": 40.89,
-            "total_duration_s": 87.24,
+            "total_duration_s": 213.2,
             "raw_char_count": 1514,
             "formatted_char_count": 1463,
             "soap_char_count": 1087
@@ -166,10 +166,10 @@
         "audio_file": "MeinungswechselLapinMitte.wav",
         "audio_size_bytes": 13946060,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 108.72,
             "format_duration_s": 48.29,
             "soap_duration_s": 36.58,
-            "total_duration_s": 84.87,
+            "total_duration_s": 193.59,
             "raw_char_count": 1257,
             "formatted_char_count": 1247,
             "soap_char_count": 890
@@ -188,10 +188,10 @@
         "audio_file": "GedankenprüngeLapInMitte.wav",
         "audio_size_bytes": 14680064,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 89.37,
             "format_duration_s": 43.7,
             "soap_duration_s": 36.54,
-            "total_duration_s": 80.24,
+            "total_duration_s": 169.61,
             "raw_char_count": 1220,
             "formatted_char_count": 1138,
             "soap_char_count": 986
@@ -210,10 +210,10 @@
         "audio_file": "ChaosLapInMitte.wav",
         "audio_size_bytes": 21390950,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 127.49,
             "format_duration_s": 63.59,
             "soap_duration_s": 42.6,
-            "total_duration_s": 106.2,
+            "total_duration_s": 233.68,
             "raw_char_count": 1721,
             "formatted_char_count": 1687,
             "soap_char_count": 1051
@@ -232,10 +232,10 @@
         "audio_file": "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
         "audio_size_bytes": 198076006,
         "stats": {
-            "stt_duration_s": 0,
+            "stt_duration_s": 1431.19,
             "format_duration_s": 168.51,
             "soap_duration_s": 53.94,
-            "total_duration_s": 222.45,
+            "total_duration_s": 1653.64,
             "raw_char_count": 14258,
             "formatted_char_count": 1311,
             "soap_char_count": 1606
