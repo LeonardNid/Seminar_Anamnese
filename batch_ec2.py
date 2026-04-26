@@ -165,17 +165,32 @@ llm_client = OpenAI(api_key=SAUERKRAUT_API_KEY, base_url=SAUERKRAUT_BASE_URL)
 
 # ── STT ───────────────────────────────────────────────────────────────────────
 def transcribe(audio_path):
-    segments, _ = whisper_model.transcribe(
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+        lf.write(f"[{ts}] === STT (Whisper {WHISPER_MODEL}) ===\n\n")
+
+    print(f"\n{'─'*60}\n[LIVE] STT — Whisper {WHISPER_MODEL}\n{'─'*60}", flush=True)
+
+    segments_gen, _ = whisper_model.transcribe(
         audio_path, language=LANGUAGE, beam_size=5, word_timestamps=True
     )
-    whisper_segments = [
-        {"start": s.start, "end": s.end, "text": s.text.strip()}
-        for s in segments
-    ]
+
+    whisper_segments = []
+    live_fh = open(LIVE_FILE, "a", encoding="utf-8")
+    for s in segments_gen:
+        text = s.text.strip()
+        line = f"[{s.start:6.1f}s → {s.end:6.1f}s]  {text}"
+        print(line, flush=True)
+        live_fh.write(line + "\n")
+        live_fh.flush()
+        whisper_segments.append({"start": s.start, "end": s.end, "text": text})
+    live_fh.close()
+    print(f"{'─'*60}", flush=True)
 
     if diarize_pipeline is None:
         return "\n".join(s["text"] for s in whisper_segments if s["text"])
 
+    log("Diarization läuft …")
     diarization = diarize_pipeline(audio_path).speaker_diarization
 
     def get_speaker(start, end):
