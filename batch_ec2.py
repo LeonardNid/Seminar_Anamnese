@@ -6,10 +6,10 @@ EC2 batch runner — konfigurierbar per Umgebungsvariablen:
   HF_TOKEN        HuggingFace Token — optional. Ohne Token wird
                   Diarization übersprungen und Whisper-Text direkt genutzt.
   TEST_MODE       1 = nur 2 kleine Testdateien verarbeiten
-  LLM_TIMEOUT     LLM-Timeout in Sekunden (default: 600)
 
 Monitoring:
-  tail -f logs/batch_ec2_log.txt
+  tail -f logs/batch_ec2_log.txt   # Fortschritt & Statistiken
+  tail -f logs/llm_live.txt        # LLM-Ausgabe live (Token für Token)
 
 Aktuelle Audio manuell überspringen (Batch läuft weiter):
   touch logs/skip_current
@@ -19,7 +19,6 @@ import os
 import json
 import time
 import tempfile
-import threading
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -46,6 +45,7 @@ MODEL_NAME          = os.getenv("OLLAMA_MODEL", "hf.co/QuantFactory/Llama-3.1-Sa
 HISTORY_FILE        = "history.json"
 CHECKPOINT_FILE     = "logs/batch_ec2_checkpoint.json"
 LOG_FILE            = "logs/batch_ec2_log.txt"
+LIVE_FILE           = "logs/llm_live.txt"
 SKIP_FILE           = "logs/skip_current"
 STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
 LLM_LABEL           = MODEL_NAME
@@ -234,46 +234,61 @@ jegliche einleitenden oder abschließenden Floskeln. Nutze eine professionelle, 
 
 def llm_call(system_prompt, user_content, phase_name="LLM"):
     """
-    Führt einen LLM-Aufruf in einem Thread aus.
-    Loggt alle 30s einen Heartbeat.
+    Streaming LLM-Aufruf. Tokens erscheinen live auf stdout und in logs/llm_live.txt.
     Manueller Abbruch: touch logs/skip_current
-    Gibt None zurück wenn abgebrochen.
+    Gibt (text, skipped) zurück. Bei Fehler wird Exception geworfen.
     """
-    result = [None]
-    error  = [None]
-    done   = threading.Event()
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+        lf.write(f"[{ts}] === {phase_name} ===\n\n")
 
-    def run():
-        try:
-            resp = llm_client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user",   "content": user_content},
-                ],
-                temperature=0.2,
-                stream=False,
-            )
-            result[0] = resp.choices[0].message.content or ""
-        except Exception as e:
-            error[0] = e
-        finally:
-            done.set()
+    print(f"\n{'─'*60}\n[LIVE] {phase_name}\n{'─'*60}", flush=True)
 
-    thread = threading.Thread(target=run, daemon=True)
-    thread.start()
+    stream = llm_client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_content},
+        ],
+        temperature=0.2,
+        stream=True,
+    )
 
-    elapsed = 0
-    while not done.wait(timeout=30):
-        elapsed += 30
-        if check_skip():
-            log(f"⏭  SKIP-Signal empfangen — {phase_name} nach {elapsed}s abgebrochen.")
-            return None
-        log(f"⏳ {phase_name} läuft … {elapsed}s vergangen (skip: touch {SKIP_FILE})")
+    collected = []
+    last_skip_check = time.time()
+    live_fh = open(LIVE_FILE, "a", encoding="utf-8")
 
-    if error[0]:
-        raise error[0]
-    return result[0]
+    try:
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            if delta:
+                print(delta, end="", flush=True)
+                live_fh.write(delta)
+                live_fh.flush()
+                collected.append(delta)
+
+            if time.time() - last_skip_check >= 1.0:
+                last_skip_check = time.time()
+                if check_skip():
+                    partial = "".join(collected)
+                    live_fh.write(f"\n\n[SKIP nach {len(partial)} Zeichen]\n")
+                    live_fh.close()
+                    print(f"\n{'─'*60}", flush=True)
+                    log(f"⏭  SKIP — {phase_name} abgebrochen ({len(partial)} Zeichen bisher gespeichert).")
+                    return partial or None, True
+    except Exception:
+        live_fh.close()
+        raise
+
+    live_fh.close()
+    result = "".join(collected)
+    print(f"\n{'─'*60}", flush=True)
+
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "a", encoding="utf-8") as lf:
+        lf.write(f"\n\n[{ts}] === {phase_name} fertig ({len(result)} Zeichen) ===\n")
+
+    return result, False
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
 checkpoint = load_checkpoint()
@@ -337,9 +352,10 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
         log(f"Phase 2/3: Transkript formatieren ({MODEL_NAME}) …")
         format_start = time.time()
         try:
-            result = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}", "Format-LLM")
-            if result is None:
-                abort_reason = "manual_skip" if os.path.exists(SKIP_FILE) else "llm_timeout"
+            result, skipped = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}", "Format-LLM")
+            if skipped:
+                formatted = result if result else raw
+                abort_reason = "manual_skip"
             else:
                 formatted = result
         except Exception as e:
@@ -360,9 +376,10 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
         log(f"Phase 3/3: SOAP-Notes generieren ({MODEL_NAME}) …")
         soap_start = time.time()
         try:
-            result = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}", "SOAP-LLM")
-            if result is None:
-                abort_reason = "manual_skip" if os.path.exists(SKIP_FILE) else "llm_timeout"
+            result, skipped = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}", "SOAP-LLM")
+            if skipped:
+                soap = result if result else ""
+                abort_reason = "manual_skip"
             else:
                 soap = result
         except Exception as e:
