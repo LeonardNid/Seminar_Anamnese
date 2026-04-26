@@ -74,16 +74,19 @@ step "Ollama-Modell pullen: ${OLLAMA_MODEL} …"
 ollama pull "$OLLAMA_MODEL"
 
 # ── Repo klonen ───────────────────────────────────────────────────────────────
-step "GitHub-Repo klonen …"
+step "GitHub-Repo klonen (nur benötigte Dateien) …"
 if [ -d "$PROJECT_DIR/.git" ]; then
     warn "Repo existiert bereits — führe git pull aus."
     git -C "$PROJECT_DIR" pull
 else
-    git clone "$GITHUB_REPO" "$PROJECT_DIR"
+    git clone --no-checkout --depth 1 "$GITHUB_REPO" "$PROJECT_DIR"
+    git -C "$PROJECT_DIR" sparse-checkout init --cone
+    git -C "$PROJECT_DIR" sparse-checkout set audio batch_ec2.py requirements.txt
+    git -C "$PROJECT_DIR" checkout main
 fi
 
 cd "$PROJECT_DIR"
-mkdir -p audio logs
+mkdir -p logs
 step "Arbeitsverzeichnis: $(pwd)"
 
 # ── Python-Umgebung ───────────────────────────────────────────────────────────
