@@ -43,7 +43,6 @@ SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v
 HF_TOKEN            = os.getenv("HF_TOKEN", "")
 WHISPER_MODEL       = os.getenv("WHISPER_MODEL", "large-v3")
 MODEL_NAME          = os.getenv("OLLAMA_MODEL", "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-70b-Instruct-GGUF:Q4_K_M")
-LLM_TIMEOUT         = int(os.getenv("LLM_TIMEOUT", "600"))
 HISTORY_FILE        = "history.json"
 CHECKPOINT_FILE     = "logs/batch_ec2_checkpoint.json"
 LOG_FILE            = "logs/batch_ec2_log.txt"
@@ -137,7 +136,7 @@ def save_to_history(raw, formatted, soap, meta):
 log("=== EC2 Batch Start ===")
 log(f"Modus: {'TEST (2 Dateien)' if TEST_MODE else f'VOLL ({len(ALL_AUDIO_FILES)} Dateien)'}")
 log(f"GPU verfügbar: {_gpu_available} | Device: {_device} | Compute: {_compute_type}")
-log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME} | Timeout: {LLM_TIMEOUT}s")
+log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME}")
 log(f"Diarization: {'aktiviert' if HF_TOKEN else 'deaktiviert (kein HF_TOKEN)'}")
 log(f"Skip-Signal: touch {SKIP_FILE}")
 
@@ -237,12 +236,12 @@ def llm_call(system_prompt, user_content, phase_name="LLM"):
     """
     Führt einen LLM-Aufruf in einem Thread aus.
     Loggt alle 30s einen Heartbeat.
-    Bricht ab bei: Timeout (LLM_TIMEOUT) oder Skip-Signal (touch logs/skip_current).
+    Manueller Abbruch: touch logs/skip_current
     Gibt None zurück wenn abgebrochen.
     """
-    result  = [None]
-    error   = [None]
-    done    = threading.Event()
+    result = [None]
+    error  = [None]
+    done   = threading.Event()
 
     def run():
         try:
@@ -265,16 +264,12 @@ def llm_call(system_prompt, user_content, phase_name="LLM"):
     thread.start()
 
     elapsed = 0
-    heartbeat_interval = 30
-    while not done.wait(timeout=heartbeat_interval):
-        elapsed += heartbeat_interval
+    while not done.wait(timeout=30):
+        elapsed += 30
         if check_skip():
             log(f"⏭  SKIP-Signal empfangen — {phase_name} nach {elapsed}s abgebrochen.")
             return None
-        if elapsed >= LLM_TIMEOUT:
-            log(f"⏱  TIMEOUT — {phase_name} nach {LLM_TIMEOUT}s abgebrochen.")
-            return None
-        log(f"⏳ {phase_name} läuft … {elapsed}s vergangen (max {LLM_TIMEOUT}s | skip: touch {SKIP_FILE})")
+        log(f"⏳ {phase_name} läuft … {elapsed}s vergangen (skip: touch {SKIP_FILE})")
 
     if error[0]:
         raise error[0]
@@ -398,12 +393,12 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
     }
 
     if abort_reason:
-        log(f"⏭  Abgebrochen ({abort_reason}) nach {total_dur}s — wird als ABORTED gespeichert.")
+        log(f"⏭  Abgebrochen ({abort_reason}) nach {total_dur}s — bisheriger Stand wird gespeichert.")
         meta["aborted"]      = True
         meta["abort_reason"] = abort_reason
-        save_to_history(raw, formatted, "[ABORTED]", meta)
+        save_to_history(raw, formatted, soap, meta)
         mark_done(file_name)
-        log(f"ABORTED-Eintrag in history.json gespeichert ✓")
+        log(f"Abgebrochener Eintrag in history.json gespeichert ✓")
     else:
         log(f"Gesamt: {total_dur}s  (STT {stt_dur}s + Format {format_dur}s + SOAP {soap_dur}s)")
         save_to_history(raw, formatted, soap, meta)
