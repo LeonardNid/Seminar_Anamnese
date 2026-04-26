@@ -38,24 +38,24 @@ HF_TOKEN            = os.getenv("HF_TOKEN", "")
 WHISPER_MODEL       = os.getenv("WHISPER_MODEL", "large-v3")
 MODEL_NAME          = os.getenv("OLLAMA_MODEL", "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-70b-Instruct-GGUF:Q4_K_M")
 HISTORY_FILE        = "history.json"
-CHECKPOINT_FILE     = "batch_ec2_checkpoint.json"
-LOG_FILE            = "batch_ec2_log.txt"
+CHECKPOINT_FILE     = "logs/batch_ec2_checkpoint.json"
+LOG_FILE            = "logs/batch_ec2_log.txt"
 STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
 LLM_LABEL           = MODEL_NAME
 LANGUAGE            = "de"
 
 AUDIO_FILES = [
-    "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
-    "ChaosLapInMitte.wav",
-    "GedankenprüngeLapInMitte.wav",
-    "MeinungswechselLapinMitte.wav",
-    "OriginalDCEng.m4a",
-    "OriginalDC.m4a",
-    "OriginalDCWhiteNoise.m4a",
-    "OriginalLapBeiArzt.wav",
-    "OriginalLapInMitte.wav",
-    "SelbstkorrekturLapInMitte.wav",
-    "UnterbrechungLapInMitte.wav",
+    "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "audio/ChaosLapInMitte.wav",
+    "audio/GedankenprüngeLapInMitte.wav",
+    "audio/MeinungswechselLapinMitte.wav",
+    "audio/OriginalDCEng.m4a",
+    "audio/OriginalDC.m4a",
+    "audio/OriginalDCWhiteNoise.m4a",
+    "audio/OriginalLapBeiArzt.wav",
+    "audio/OriginalLapInMitte.wav",
+    "audio/SelbstkorrekturLapInMitte.wav",
+    "audio/UnterbrechungLapInMitte.wav",
 ]
 
 # ── Logging ───────────────────────────────────────────────────────────────────

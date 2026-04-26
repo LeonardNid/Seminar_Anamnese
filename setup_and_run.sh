@@ -83,6 +83,7 @@ else
 fi
 
 cd "$PROJECT_DIR"
+mkdir -p audio logs
 step "Arbeitsverzeichnis: $(pwd)"
 
 # ── Python-Umgebung ───────────────────────────────────────────────────────────

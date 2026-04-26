@@ -20,8 +20,8 @@ load_dotenv()
 SAUERKRAUT_API_KEY  = os.getenv("SAUERKRAUT_API_KEY", "dummy-key")
 SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v1")
 HISTORY_FILE        = "history.json"
-CHECKPOINT_FILE     = "batch_llama32_checkpoint.json"
-LOG_FILE            = "batch_llama32_log.txt"
+CHECKPOINT_FILE     = "logs/batch_llama32_checkpoint.json"
+LOG_FILE            = "logs/batch_llama32_log.txt"
 MODEL_NAME          = "llama3.2"
 STT_LABEL           = "Whisper Large-v3-turbo (Lokal)"
 LLM_LABEL           = "llama3.2"

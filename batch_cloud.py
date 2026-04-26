@@ -23,24 +23,24 @@ OPENAI_API_KEY      = os.getenv("OPENAI_API_KEY")
 SPEECHMATICS_API_KEY = os.getenv("SPEECHMATICS_API_KEY")
 SPEECHMATICS_URL    = os.getenv("SPEECHMATICS_URL", "https://asr.api.speechmatics.com/v2")
 HISTORY_FILE        = "history.json"
-CHECKPOINT_FILE     = "batch_cloud_checkpoint.json"
-LOG_FILE            = "batch_cloud_log.txt"
+CHECKPOINT_FILE     = "logs/batch_cloud_checkpoint.json"
+LOG_FILE            = "logs/batch_cloud_log.txt"
 STT_LABEL           = "Speechmatics (Cloud)"
 LLM_LABEL           = "OpenAI GPT-4o"
 LANGUAGE            = "de"
 
 AUDIO_FILES = [
-    "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
-    "ChaosLapInMitte.wav",
-    "GedankenprüngeLapInMitte.wav",
-    "MeinungswechselLapinMitte.wav",
-    "OriginalDCEng.m4a",
-    "OriginalDC.m4a",
-    "OriginalDCWhiteNoise.m4a",
-    "OriginalLapBeiArzt.wav",
-    "OriginalLapInMitte.wav",
-    "SelbstkorrekturLapInMitte.wav",
-    "UnterbrechungLapInMitte.wav",
+    "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "audio/ChaosLapInMitte.wav",
+    "audio/GedankenprüngeLapInMitte.wav",
+    "audio/MeinungswechselLapinMitte.wav",
+    "audio/OriginalDCEng.m4a",
+    "audio/OriginalDC.m4a",
+    "audio/OriginalDCWhiteNoise.m4a",
+    "audio/OriginalLapBeiArzt.wav",
+    "audio/OriginalLapInMitte.wav",
+    "audio/SelbstkorrekturLapInMitte.wav",
+    "audio/UnterbrechungLapInMitte.wav",
 ]
 
 # ── Logging ───────────────────────────────────────────────────────────────────

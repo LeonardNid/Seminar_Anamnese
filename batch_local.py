@@ -27,25 +27,25 @@ SAUERKRAUT_API_KEY  = os.getenv("SAUERKRAUT_API_KEY", "dummy-key")
 SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v1")
 HF_TOKEN            = os.getenv("HF_TOKEN")
 HISTORY_FILE        = "history.json"
-CHECKPOINT_FILE     = "batch_checkpoint.json"
-LOG_FILE            = "batch_log.txt"
+CHECKPOINT_FILE     = "logs/batch_checkpoint.json"
+LOG_FILE            = "logs/batch_log.txt"
 MODEL_NAME          = "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M"
 STT_LABEL           = "Whisper Large-v3-turbo (Lokal)"
 LLM_LABEL           = "Llama-3.1-SauerkrautLM-8b-Instruct"
 LANGUAGE            = "de"
 
 AUDIO_FILES = [
-    "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
-    "ChaosLapInMitte.wav",
-    "GedankenprüngeLapInMitte.wav",
-    "MeinungswechselLapinMitte.wav",
-    "OriginalDCEng.m4a",
-    "OriginalDC.m4a",
-    "OriginalDCWhiteNoise.m4a",
-    "OriginalLapBeiArzt.wav",
-    "OriginalLapInMitte.wav",
-    "SelbstkorrekturLapInMitte.wav",
-    "UnterbrechungLapInMitte.wav",
+    "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "audio/ChaosLapInMitte.wav",
+    "audio/GedankenprüngeLapInMitte.wav",
+    "audio/MeinungswechselLapinMitte.wav",
+    "audio/OriginalDCEng.m4a",
+    "audio/OriginalDC.m4a",
+    "audio/OriginalDCWhiteNoise.m4a",
+    "audio/OriginalLapBeiArzt.wav",
+    "audio/OriginalLapInMitte.wav",
+    "audio/SelbstkorrekturLapInMitte.wav",
+    "audio/UnterbrechungLapInMitte.wav",
 ]
 
 # ── Logging ───────────────────────────────────────────────────────────────────

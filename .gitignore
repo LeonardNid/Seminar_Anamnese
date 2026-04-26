@@ -8,6 +8,7 @@ __pycache__/
 
 # Generierte Dateien
 history.json
+logs/
 
 # Nix
 result

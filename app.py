@@ -71,19 +71,20 @@ def delete_history_entry(entry_id):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=4)
 
+AUDIO_DIR        = "audio"
 BATCH_FIRST_FILE = "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav"
 
 def get_audio_files():
-    """Return audio files in the project directory, with BATCH_FIRST_FILE sorted to the top."""
+    """Return audio files from the audio/ directory, with BATCH_FIRST_FILE sorted to the top."""
     audio_exts = {".wav", ".mp3", ".m4a", ".ogg"}
     files = sorted(
-        f for f in os.listdir(".")
-        if os.path.isfile(f) and os.path.splitext(f)[1].lower() in audio_exts
+        f for f in os.listdir(AUDIO_DIR)
+        if os.path.isfile(os.path.join(AUDIO_DIR, f)) and os.path.splitext(f)[1].lower() in audio_exts
     )
     if BATCH_FIRST_FILE in files:
         files.remove(BATCH_FIRST_FILE)
         files.insert(0, BATCH_FIRST_FILE)
-    return files
+    return [os.path.join(AUDIO_DIR, f) for f in files]
 
 def transcribe_audio_speechmatics(audio_bytes, language="de"):
     if not SPEECHMATICS_API_KEY:
