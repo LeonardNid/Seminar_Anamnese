@@ -36,42 +36,45 @@ NC='\033[0m'
 
 step() { echo -e "\n${GREEN}[SETUP]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC}  $1"; }
-fail() { echo -e "${RED}[FAIL]${NC}  $1"; exit 1; }
+fail() {
+  echo -e "${RED}[FAIL]${NC}  $1"
+  exit 1
+}
 
 # ── Repo-URL prüfen ───────────────────────────────────────────────────────────
 if [ -z "$GITHUB_REPO" ]; then
-    fail "Keine GitHub-URL angegeben. Aufruf: bash setup_and_run.sh https://github.com/USER/Seminar.git"
+  fail "Keine GitHub-URL angegeben. Aufruf: bash setup_and_run.sh https://github.com/USER/Seminar.git"
 fi
 
 # ── HF Token (optional) ───────────────────────────────────────────────────────
 if [ -z "${HF_TOKEN:-}" ]; then
-    warn "Kein HF_TOKEN gesetzt — Speaker-Diarization wird übersprungen."
-    HF_TOKEN=""
+  warn "Kein HF_TOKEN gesetzt — Speaker-Diarization wird übersprungen."
+  HF_TOKEN=""
 fi
 
 # ── System-Pakete ─────────────────────────────────────────────────────────────
 step "System-Pakete installieren …"
 sudo apt-get update -y -qq
 sudo apt-get install -y -qq \
-    python3 python3-pip python3-venv \
-    git ffmpeg curl
+  python3 python3-pip python3-venv \
+  git ffmpeg curl
 
 # ── Ollama installieren ───────────────────────────────────────────────────────
 step "Ollama installieren …"
 if command -v ollama &>/dev/null; then
-    warn "Ollama ist bereits installiert: $(ollama --version)"
+  warn "Ollama ist bereits installiert: $(ollama --version)"
 else
-    curl -fsSL https://ollama.ai/install.sh | sh
+  curl -fsSL https://ollama.ai/install.sh | sh
 fi
 
 # ── Ollama starten ────────────────────────────────────────────────────────────
 step "Ollama-Server starten …"
 if systemctl is-active --quiet ollama 2>/dev/null; then
-    warn "Ollama-Service läuft bereits."
+  warn "Ollama-Service läuft bereits."
 else
-    ollama serve > /tmp/ollama.log 2>&1 &
-    echo "Warte 8 Sekunden auf Ollama …"
-    sleep 8
+  ollama serve >/tmp/ollama.log 2>&1 &
+  echo "Warte 8 Sekunden auf Ollama …"
+  sleep 8
 fi
 
 # ── Modell pullen ─────────────────────────────────────────────────────────────
@@ -81,13 +84,13 @@ ollama pull "$OLLAMA_MODEL"
 # ── Repo klonen ───────────────────────────────────────────────────────────────
 step "GitHub-Repo klonen (nur benötigte Dateien) …"
 if [ -d "$PROJECT_DIR/.git" ]; then
-    warn "Repo existiert bereits — führe git pull aus."
-    git -C "$PROJECT_DIR" pull
+  warn "Repo existiert bereits — führe git pull aus."
+  git -C "$PROJECT_DIR" pull
 else
-    git clone --no-checkout --depth 1 "$GITHUB_REPO" "$PROJECT_DIR"
-    git -C "$PROJECT_DIR" sparse-checkout init --cone
-    git -C "$PROJECT_DIR" sparse-checkout set audio batch_ec2.py requirements.txt
-    git -C "$PROJECT_DIR" checkout main
+  git clone --no-checkout --depth 1 "$GITHUB_REPO" "$PROJECT_DIR"
+  git -C "$PROJECT_DIR" sparse-checkout init --cone
+  git -C "$PROJECT_DIR" sparse-checkout set audio batch_ec2.py requirements.txt
+  git -C "$PROJECT_DIR" checkout main
 fi
 
 cd "$PROJECT_DIR"
@@ -105,7 +108,7 @@ step "Python-Abhängigkeiten installiert."
 
 # ── .env schreiben ────────────────────────────────────────────────────────────
 step ".env-Datei erstellen …"
-cat > .env << EOF
+cat >.env <<EOF
 HF_TOKEN=${HF_TOKEN}
 WHISPER_MODEL=${WHISPER_MODEL}
 OLLAMA_MODEL=${OLLAMA_MODEL}
@@ -121,8 +124,9 @@ echo ".env geschrieben."
 # ── Batch starten ─────────────────────────────────────────────────────────────
 step "Starte Batch-Verarbeitung (Whisper ${WHISPER_MODEL} + ${OLLAMA_MODEL}) …"
 echo ""
-echo "  Fortschritt verfolgen:  tail -f batch_ec2_log.txt"
-echo "  Abbrechen:              Ctrl+C  (Checkpoint wird gespeichert, Neustart möglich)"
+echo "  Fortschritt verfolgen:  tail -f ~/Seminar/logs/batch_ec2_log.txt"
+echo "  Audio überspringen:     touch ~/Seminar/logs/skip_current"
+echo "  Batch abbrechen:        Ctrl+C  (Checkpoint wird gespeichert, Neustart möglich)"
 echo ""
 
 python batch_ec2.py
