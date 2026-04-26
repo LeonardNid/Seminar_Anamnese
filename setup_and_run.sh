@@ -22,7 +22,7 @@
 
 set -euo pipefail
 
-GITHUB_REPO="${1:-}"
+GITHUB_REPO="$(echo "${1:-}" | xargs)"
 PROJECT_DIR="$HOME/Seminar"
 WHISPER_MODEL="${WHISPER_MODEL:-large-v3}"
 OLLAMA_MODEL="${OLLAMA_MODEL:-hf.co/QuantFactory/Llama-3.1-SauerkrautLM-70b-Instruct-GGUF:Q4_K_M}"
