@@ -5,15 +5,21 @@ EC2 batch runner — konfigurierbar per Umgebungsvariablen:
   OLLAMA_MODEL    Ollama-Modell  (default: SauerkrautLM-70b GGUF)
   HF_TOKEN        HuggingFace Token — optional. Ohne Token wird
                   Diarization übersprungen und Whisper-Text direkt genutzt.
+  TEST_MODE       1 = nur 2 kleine Testdateien verarbeiten
+  LLM_TIMEOUT     LLM-Timeout in Sekunden (default: 600)
 
-Auto-detects GPU (CUDA) und nutzt es wenn verfügbar.
-Checkpoint-fähig: Neustart überspringt bereits erledigte Dateien.
+Monitoring:
+  tail -f logs/batch_ec2_log.txt
+
+Aktuelle Audio manuell überspringen (Batch läuft weiter):
+  touch logs/skip_current
 """
 
 import os
 import json
 import time
 import tempfile
+import threading
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -37,9 +43,11 @@ SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v
 HF_TOKEN            = os.getenv("HF_TOKEN", "")
 WHISPER_MODEL       = os.getenv("WHISPER_MODEL", "large-v3")
 MODEL_NAME          = os.getenv("OLLAMA_MODEL", "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-70b-Instruct-GGUF:Q4_K_M")
+LLM_TIMEOUT         = int(os.getenv("LLM_TIMEOUT", "600"))
 HISTORY_FILE        = "history.json"
 CHECKPOINT_FILE     = "logs/batch_ec2_checkpoint.json"
 LOG_FILE            = "logs/batch_ec2_log.txt"
+SKIP_FILE           = "logs/skip_current"
 STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
 LLM_LABEL           = MODEL_NAME
 LANGUAGE            = "de"
@@ -59,11 +67,11 @@ ALL_AUDIO_FILES = [
 ]
 
 TEST_AUDIO_FILES = [
-    "audio/OriginalDCWhiteNoise.m4a",   # 2 MB
-    "audio/UnterbrechungLapInMitte.wav", # 11 MB
+    "audio/OriginalDCWhiteNoise.m4a",    # 2 MB
+    "audio/UnterbrechungLapInMitte.wav",  # 11 MB
 ]
 
-TEST_MODE  = os.getenv("TEST_MODE", "0") == "1"
+TEST_MODE   = os.getenv("TEST_MODE", "0") == "1"
 AUDIO_FILES = TEST_AUDIO_FILES if TEST_MODE else ALL_AUDIO_FILES
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -74,6 +82,14 @@ def log(msg):
     line = f"[{ts}] {msg}"
     print(line, flush=True)
     log_fh.write(line + "\n")
+
+# ── Skip-Signal ───────────────────────────────────────────────────────────────
+def check_skip():
+    """Gibt True zurück und löscht die Datei wenn ein Skip-Signal vorliegt."""
+    if os.path.exists(SKIP_FILE):
+        os.remove(SKIP_FILE)
+        return True
+    return False
 
 # ── Checkpoint ────────────────────────────────────────────────────────────────
 def load_checkpoint():
@@ -121,8 +137,9 @@ def save_to_history(raw, formatted, soap, meta):
 log("=== EC2 Batch Start ===")
 log(f"Modus: {'TEST (2 Dateien)' if TEST_MODE else f'VOLL ({len(ALL_AUDIO_FILES)} Dateien)'}")
 log(f"GPU verfügbar: {_gpu_available} | Device: {_device} | Compute: {_compute_type}")
-log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME}")
+log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME} | Timeout: {LLM_TIMEOUT}s")
 log(f"Diarization: {'aktiviert' if HF_TOKEN else 'deaktiviert (kein HF_TOKEN)'}")
+log(f"Skip-Signal: touch {SKIP_FILE}")
 
 log(f"Lade Whisper {WHISPER_MODEL} …")
 t0 = time.time()
@@ -216,17 +233,52 @@ Bitte antworte ausschließlich mit den formatierten SOAP Notes auf Deutsch und v
 jegliche einleitenden oder abschließenden Floskeln. Nutze eine professionelle, präzise und klinische Ausdrucksweise.
 """
 
-def llm_call(system_prompt, user_content):
-    response = llm_client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_content},
-        ],
-        temperature=0.2,
-        stream=False,
-    )
-    return response.choices[0].message.content or ""
+def llm_call(system_prompt, user_content, phase_name="LLM"):
+    """
+    Führt einen LLM-Aufruf in einem Thread aus.
+    Loggt alle 30s einen Heartbeat.
+    Bricht ab bei: Timeout (LLM_TIMEOUT) oder Skip-Signal (touch logs/skip_current).
+    Gibt None zurück wenn abgebrochen.
+    """
+    result  = [None]
+    error   = [None]
+    done    = threading.Event()
+
+    def run():
+        try:
+            resp = llm_client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user",   "content": user_content},
+                ],
+                temperature=0.2,
+                stream=False,
+            )
+            result[0] = resp.choices[0].message.content or ""
+        except Exception as e:
+            error[0] = e
+        finally:
+            done.set()
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+
+    elapsed = 0
+    heartbeat_interval = 30
+    while not done.wait(timeout=heartbeat_interval):
+        elapsed += heartbeat_interval
+        if check_skip():
+            log(f"⏭  SKIP-Signal empfangen — {phase_name} nach {elapsed}s abgebrochen.")
+            return None
+        if elapsed >= LLM_TIMEOUT:
+            log(f"⏱  TIMEOUT — {phase_name} nach {LLM_TIMEOUT}s abgebrochen.")
+            return None
+        log(f"⏳ {phase_name} läuft … {elapsed}s vergangen (max {LLM_TIMEOUT}s | skip: touch {SKIP_FILE})")
+
+    if error[0]:
+        raise error[0]
+    return result[0]
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
 checkpoint = load_checkpoint()
@@ -250,70 +302,110 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
     log(f"Dateigröße: {size_mb} MB")
 
     pipeline_start = time.time()
+    abort_reason   = None
+
+    # ── Skip-Check vor STT ────────────────────────────────────────────────────
+    if check_skip():
+        log("⏭  SKIP-Signal vor STT — überspringe diese Datei.")
+        abort_reason = "manual_skip"
 
     # ── STT ──────────────────────────────────────────────────────────────────
-    stt_label = "STT (Whisper + pyannote)" if diarize_pipeline else "STT (Whisper)"
-    log(f"Phase 1/3: {stt_label} läuft …")
-    stt_start = time.time()
-    try:
-        ext = os.path.splitext(file_name)[1]
-        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-            with open(file_name, "rb") as src:
-                tmp.write(src.read())
-            tmp_path = tmp.name
+    raw = ""
+    stt_dur = 0
+    if not abort_reason:
+        stt_label = "STT (Whisper + pyannote)" if diarize_pipeline else "STT (Whisper)"
+        log(f"Phase 1/3: {stt_label} läuft …")
+        stt_start = time.time()
+        try:
+            ext = os.path.splitext(file_name)[1]
+            with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+                with open(file_name, "rb") as src:
+                    tmp.write(src.read())
+                tmp_path = tmp.name
+            raw = transcribe(tmp_path)
+            os.remove(tmp_path)
+        except Exception as e:
+            log(f"FEHLER STT: {e}")
+            continue
+        stt_dur = round(time.time() - stt_start, 2)
+        log(f"STT fertig: {stt_dur}s | {len(raw)} Zeichen")
 
-        raw = transcribe(tmp_path)
-        os.remove(tmp_path)
-    except Exception as e:
-        log(f"FEHLER STT: {e}")
-        continue
-    stt_dur = round(time.time() - stt_start, 2)
-    log(f"STT fertig: {stt_dur}s | {len(raw)} Zeichen")
+    # ── Skip-Check vor Format ─────────────────────────────────────────────────
+    if not abort_reason and check_skip():
+        log("⏭  SKIP-Signal vor Format — überspringe diese Datei.")
+        abort_reason = "manual_skip"
 
     # ── Format ───────────────────────────────────────────────────────────────
-    log(f"Phase 2/3: Transkript formatieren ({MODEL_NAME}) …")
-    format_start = time.time()
-    try:
-        formatted = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}")
-    except Exception as e:
-        log(f"FEHLER Format: {e} — weiter mit Rohtranskript")
-        formatted = raw
-    format_dur = round(time.time() - format_start, 2)
-    log(f"Format fertig: {format_dur}s | {len(formatted)} Zeichen")
+    formatted = raw
+    format_dur = 0
+    if not abort_reason:
+        log(f"Phase 2/3: Transkript formatieren ({MODEL_NAME}) …")
+        format_start = time.time()
+        try:
+            result = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}", "Format-LLM")
+            if result is None:
+                abort_reason = "manual_skip" if os.path.exists(SKIP_FILE) else "llm_timeout"
+            else:
+                formatted = result
+        except Exception as e:
+            log(f"FEHLER Format: {e} — weiter mit Rohtranskript")
+        format_dur = round(time.time() - format_start, 2)
+        if not abort_reason:
+            log(f"Format fertig: {format_dur}s | {len(formatted)} Zeichen")
+
+    # ── Skip-Check vor SOAP ───────────────────────────────────────────────────
+    if not abort_reason and check_skip():
+        log("⏭  SKIP-Signal vor SOAP — überspringe diese Datei.")
+        abort_reason = "manual_skip"
 
     # ── SOAP ─────────────────────────────────────────────────────────────────
-    log(f"Phase 3/3: SOAP-Notes generieren ({MODEL_NAME}) …")
-    soap_start = time.time()
-    try:
-        soap = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}")
-    except Exception as e:
-        log(f"FEHLER SOAP: {e}")
-        soap = f"Fehler bei der SOAP-Generierung: {e}"
-    soap_dur = round(time.time() - soap_start, 2)
+    soap = ""
+    soap_dur = 0
+    if not abort_reason:
+        log(f"Phase 3/3: SOAP-Notes generieren ({MODEL_NAME}) …")
+        soap_start = time.time()
+        try:
+            result = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}", "SOAP-LLM")
+            if result is None:
+                abort_reason = "manual_skip" if os.path.exists(SKIP_FILE) else "llm_timeout"
+            else:
+                soap = result
+        except Exception as e:
+            log(f"FEHLER SOAP: {e}")
+            soap = f"Fehler: {e}"
+        soap_dur = round(time.time() - soap_start, 2)
+        if not abort_reason:
+            log(f"SOAP fertig: {soap_dur}s | {len(soap)} Zeichen")
+
     total_dur = round(time.time() - pipeline_start, 2)
-    log(f"SOAP fertig: {soap_dur}s | {len(soap)} Zeichen")
-    log(f"Gesamt: {total_dur}s  (STT {stt_dur}s + Format {format_dur}s + SOAP {soap_dur}s)")
 
     # ── Speichern ─────────────────────────────────────────────────────────────
-    if soap.startswith("Fehler"):
-        log("SOAP enthält Fehler — nicht in History gespeichert.")
+    meta = {
+        "stt_model":        STT_LABEL,
+        "llm_model":        LLM_LABEL,
+        "language":         LANGUAGE,
+        "audio_file":       file_name,
+        "audio_size_bytes": int(size_mb * 1024 * 1024),
+        "stats": {
+            "stt_duration_s":       stt_dur,
+            "format_duration_s":    format_dur,
+            "soap_duration_s":      soap_dur,
+            "total_duration_s":     total_dur,
+            "raw_char_count":       len(raw),
+            "formatted_char_count": len(formatted),
+            "soap_char_count":      len(soap),
+        },
+    }
+
+    if abort_reason:
+        log(f"⏭  Abgebrochen ({abort_reason}) nach {total_dur}s — wird als ABORTED gespeichert.")
+        meta["aborted"]      = True
+        meta["abort_reason"] = abort_reason
+        save_to_history(raw, formatted, "[ABORTED]", meta)
+        mark_done(file_name)
+        log(f"ABORTED-Eintrag in history.json gespeichert ✓")
     else:
-        meta = {
-            "stt_model":        STT_LABEL,
-            "llm_model":        LLM_LABEL,
-            "language":         LANGUAGE,
-            "audio_file":       file_name,
-            "audio_size_bytes": int(size_mb * 1024 * 1024),
-            "stats": {
-                "stt_duration_s":       stt_dur,
-                "format_duration_s":    format_dur,
-                "soap_duration_s":      soap_dur,
-                "total_duration_s":     total_dur,
-                "raw_char_count":       len(raw),
-                "formatted_char_count": len(formatted),
-                "soap_char_count":      len(soap),
-            },
-        }
+        log(f"Gesamt: {total_dur}s  (STT {stt_dur}s + Format {format_dur}s + SOAP {soap_dur}s)")
         save_to_history(raw, formatted, soap, meta)
         mark_done(file_name)
         log(f"Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓")
