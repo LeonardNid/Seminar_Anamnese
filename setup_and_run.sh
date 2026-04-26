@@ -49,8 +49,7 @@ step "System-Pakete installieren …"
 sudo apt-get update -y -qq
 sudo apt-get install -y -qq \
     python3 python3-pip python3-venv \
-    git git-lfs \
-    ffmpeg curl
+    git ffmpeg curl
 
 # ── Ollama installieren ───────────────────────────────────────────────────────
 step "Ollama installieren …"
@@ -76,14 +75,11 @@ ollama pull "$OLLAMA_MODEL"
 
 # ── Repo klonen ───────────────────────────────────────────────────────────────
 step "GitHub-Repo klonen …"
-git lfs install --skip-repo
 if [ -d "$PROJECT_DIR/.git" ]; then
     warn "Repo existiert bereits — führe git pull aus."
     git -C "$PROJECT_DIR" pull
-    git -C "$PROJECT_DIR" lfs pull
 else
     git clone "$GITHUB_REPO" "$PROJECT_DIR"
-    git -C "$PROJECT_DIR" lfs pull
 fi
 
 cd "$PROJECT_DIR"
