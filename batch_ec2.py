@@ -44,7 +44,7 @@ STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
 LLM_LABEL           = MODEL_NAME
 LANGUAGE            = "de"
 
-AUDIO_FILES = [
+ALL_AUDIO_FILES = [
     "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
     "audio/ChaosLapInMitte.wav",
     "audio/GedankenprüngeLapInMitte.wav",
@@ -57,6 +57,14 @@ AUDIO_FILES = [
     "audio/SelbstkorrekturLapInMitte.wav",
     "audio/UnterbrechungLapInMitte.wav",
 ]
+
+TEST_AUDIO_FILES = [
+    "audio/OriginalDCWhiteNoise.m4a",   # 2 MB
+    "audio/UnterbrechungLapInMitte.wav", # 11 MB
+]
+
+TEST_MODE  = os.getenv("TEST_MODE", "0") == "1"
+AUDIO_FILES = TEST_AUDIO_FILES if TEST_MODE else ALL_AUDIO_FILES
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 log_fh = open(LOG_FILE, "a", encoding="utf-8", buffering=1)
@@ -111,6 +119,7 @@ def save_to_history(raw, formatted, soap, meta):
 
 # ── Models (loaded once) ──────────────────────────────────────────────────────
 log("=== EC2 Batch Start ===")
+log(f"Modus: {'TEST (2 Dateien)' if TEST_MODE else f'VOLL ({len(ALL_AUDIO_FILES)} Dateien)'}")
 log(f"GPU verfügbar: {_gpu_available} | Device: {_device} | Compute: {_compute_type}")
 log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME}")
 log(f"Diarization: {'aktiviert' if HF_TOKEN else 'deaktiviert (kein HF_TOKEN)'}")

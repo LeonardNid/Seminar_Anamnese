@@ -14,6 +14,10 @@
 # Ohne Diarization (kein HF_TOKEN nötig):
 #   WHISPER_MODEL=small OLLAMA_MODEL=llama3.2 \
 #   bash setup_and_run.sh https://github.com/USER/Seminar.git
+#
+# Test-Durchlauf (nur 2 kleine Dateien):
+#   TEST_MODE=1 WHISPER_MODEL=small OLLAMA_MODEL=llama3.2:1b \
+#   bash setup_and_run.sh https://github.com/USER/Seminar.git
 # =============================================================================
 
 set -euo pipefail
@@ -22,6 +26,7 @@ GITHUB_REPO="${1:-}"
 PROJECT_DIR="$HOME/Seminar"
 WHISPER_MODEL="${WHISPER_MODEL:-large-v3}"
 OLLAMA_MODEL="${OLLAMA_MODEL:-hf.co/QuantFactory/Llama-3.1-SauerkrautLM-70b-Instruct-GGUF:Q4_K_M}"
+TEST_MODE="${TEST_MODE:-0}"
 
 # ── Farben für Output ─────────────────────────────────────────────────────────
 GREEN='\033[0;32m'
@@ -104,6 +109,7 @@ cat > .env << EOF
 HF_TOKEN=${HF_TOKEN}
 WHISPER_MODEL=${WHISPER_MODEL}
 OLLAMA_MODEL=${OLLAMA_MODEL}
+TEST_MODE=${TEST_MODE}
 SAUERKRAUT_BASE_URL=http://localhost:11434/v1
 SAUERKRAUT_API_KEY=ollama
 OPENAI_API_KEY=not-needed
