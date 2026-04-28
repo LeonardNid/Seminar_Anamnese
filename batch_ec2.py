@@ -63,6 +63,7 @@ ALL_AUDIO_FILES = [
     "audio/OriginalLapInMitte.wav",
     "audio/SelbstkorrekturLapInMitte.wav",
     "audio/UnterbrechungLapInMitte.wav",
+    "audio/Anamnesegesrpäch PWC.mp3",
 ]
 
 TEST_AUDIO_FILES = [
