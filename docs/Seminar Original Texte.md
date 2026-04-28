@@ -1,7 +1,4 @@
-
-# Original
-
-#### 🇩🇪 Version 1: Deutsch
+# Text: Original
 
 **Arzt:** Guten Morgen, Frau Weber. Was führt Sie heute zu mir?
 
@@ -25,40 +22,7 @@
 
 **Arzt:** Alles klar. *Notiz: Keine spezifische Vormedikation, lediglich supportive Hausmittel.* Ich werde jetzt Ihre Lunge abhören. Bitte atmen Sie tief durch den offenen Mund ein und aus. *Notiz: Beginn der Auskultation der Pulmones.*
 
----
-
-# Original Englisch
-#### 🇬🇧 Version 2: Englisch
-
-**Arzt:** Good morning, Mrs. Weber. What brings you in today?
-
-**Patientin:** Hello Doctor. I've been coughing non-stop for almost a week now, and I keep feeling hot and cold.
-
-**Arzt:** I see. *Note for record: Chief complaint cough for seven days, suspected recurrent fever.* Did you actually measure your temperature?
-
-**Patientin:** Yes, yesterday evening the thermometer said 38.8 degrees Celsius.
-
-**Arzt:** Okay. *Note: Subfebrile to febrile temperatures, peak 38.8 degrees Celsius.* And when you cough, are you bringing up any phlegm, or is it more of a dry, tickly cough?
-
-**Patientin:** I'm bringing up quite a lot. It's really thick and kind of yellowish-green, I'd say. It's really gross.
-
-**Arzt:** That's important to know. *Note: Highly productive cough with purulent sputum.* Do you have any pain when breathing or feel like you're not getting enough air?
-
-**Patientin:** Well, it doesn't really hurt in my chest, but when I walk up the stairs to the second floor, I'm puffing quite a bit and have to stop halfway.
-
-**Arzt:** Good that you mention that. *Note: Distinct exertional dyspnea, no resting dyspnea. No thoracic pain.* Are you currently taking any medication for this?
-
-**Patientin:** I'm just sucking on those regular cough drops from the drugstore and drinking lots of chamomile tea.
-
-**Arzt:** Alright. *Note: No specific prior medication, only supportive home remedies.* I'm going to listen to your lungs now. Please take deep breaths in and out through your open mouth. *Note: Commencing auscultation of the lungs.*
-
-
-
-# Selbstkorrekturen (Fokus: Daten, Seiten, Medikamente)
-
-**Testziel:** Erkennt die KI, dass vorherige Aussagen revidiert wurden und übernimmt nur die finale Version in die strukturierte Akte?
-
-**Szenario:** Verdacht auf Migräne.
+# Text: Selbstkorrekturen (Fokus: Daten, Seiten, Medikamente) 
 
 **Arzt:** Hallo Herr Berger, was führt Sie heute zu mir?
 
@@ -80,15 +44,7 @@
 
 **Patient:** Nein, zum Glück nicht. Aber ich bin extrem lichtempfindlich.
 
----
-
-# Unterbrechungen
-
-**Testziel:** Wie geht das STT-System mit überlappenden Audiospuren um? Gehen Informationen verloren, wenn beide gleichzeitig sprechen?
-
-**Regieanweisung:** Die Stellen in den Klammern `[...]` müssen von den Sprechern im Test _gleichzeitig_ gesprochen werden.
-
-**Szenario:** Akute Bauchschmerzen.
+# Text: Unterbrechungen
 
 **Arzt:** Frau Klein, Sie haben am Telefon gesagt, Sie haben starke Bauchschmerzen. Seit wann genau?
 
@@ -118,13 +74,10 @@
 
 **Patientin:** Ja, das Hähnchen war an einer Stelle vielleicht noch etwas rosa, jetzt wo Sie es sagen.
 
----
 
-# Gedankensprünge (Kontext-Verlust Test)
 
-**Testziel:** Kann das Modell irrelevante Anekdoten herausfiltern und den Bezug zum eigentlichen Symptom wiederherstellen, wenn der Patient nach einer Minute zum Thema zurückkehrt?
+# Text: Gedankensprünge (Kontext-Verlust Test)
 
-**Szenario:** Schulterschmerzen (mit Exkurs zur Knie-OP).
 
 **Arzt:** Herr Yilmaz, Sie klagen über Schmerzen in der Schulter. Wie äußert sich das?
 
@@ -140,15 +93,14 @@
 
 **Arzt:** Verstehe. Ist die Schulter auch geschwollen oder überwärmt?
 
-**Patient:** Etwas dick ist sie schon, ja. Aber heiß nicht. _Notiz: Verdacht auf Rotatorenmanschetten-Ruptur nach Sporttrauma. Knie-Anamnese aktuell irrelevant._
+**Patient:** Etwas dick ist sie schon, ja. Aber heiß nicht. 
 
----
+**Arzt:** Notiz: Verdacht auf Rotatorenmanschetten-Ruptur nach Sporttrauma. 
 
-# Meinungswechsel (Diagnose-Korrektur)
 
-**Testziel:** Überschreibt das Modell eine anfangs klar geäußerte, aber später widerrufene ärztliche Einschätzung korrekt, ohne Widersprüche in der finalen Akte zu hinterlassen?
 
-**Szenario:** Brustschmerz vs. Reflux.
+# Text: Meinungswechsel (Diagnose-Korrektur)
+
 
 **Arzt:** Frau Hoffmann, was machen wir denn mit Ihnen? Sie fassen sich die ganze Zeit an die Brust.
 
@@ -168,13 +120,9 @@
 
 **Arzt:** Okay, dann Kommando zurück. _Notiz: Korrektur. Kein Anhalt für kardiale Ischämie._ Das ändert die Sache komplett. Wir streichen den Verdacht auf Angina Pectoris oder einen Herzinfarkt. Das klingt ganz klassisch nach Sodbrennen, also einem Reflux. Die Magensäure steigt in Ihre Speiseröhre auf, das verursacht diesen Schmerz.
 
----
 
-# Chaos
 
-**Testziel:** Alle vorherigen Hürden in einem Gespräch. Überlappungen, Korrekturen, irrelevante Exkurse und ein diagnostischer Meinungsschwenk.
-
-**Szenario:** Schwindel und Ohrenschmerzen.
+# Text: Chaos
 
 **Arzt:** Herr Schuster, kommen Sie rein. Sie wirken etwas wackelig auf den Beinen.
 
@@ -201,3 +149,5 @@
 **Patient:** Ernsthaft? Nur Ohrenschmalz? Gott sei Dank! Ich hatte schon wieder Ibuprofen 800 eingeworfen heute Morgen. Oder waren es zwei 400er? Ja, es waren zwei kleine.
 
 **Arzt:** _Notiz: Keine operative Intervention nötig, Cerumen obturans rechtsseitig. Vormedikation 800mg Ibuprofen._ Genau, das können Sie ab morgen wieder weglassen.
+
+
