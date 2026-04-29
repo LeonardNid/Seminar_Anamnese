@@ -53,6 +53,10 @@ if [ -z "${HF_TOKEN:-}" ]; then
 fi
 
 # ── Pre-Flight-Checks ────────────────────────────────────────────────────────
+if [ "$TEST_MODE" = "1" ]; then
+  warn "TEST_MODE=1 — Pre-Flight-Checks (GPU, Disk) werden übersprungen."
+else
+
 step "Pre-Flight-Checks …"
 
 # GPU: nvidia-smi muss da sein; wenn nicht → falsches AMI gewählt
@@ -72,6 +76,8 @@ if [ "${FREE_GB:-0}" -lt 80 ]; then
   fail "Nur ${FREE_GB} GB auf / frei — mindestens 80 GB benötigt. Starte die Instanz mit ≥100 GB EBS gp3 als Root-Volume."
 fi
 step "Disk-Space OK: ${FREE_GB} GB frei"
+
+fi  # end TEST_MODE skip
 
 # ── System-Pakete ─────────────────────────────────────────────────────────────
 step "System-Pakete installieren …"
@@ -147,13 +153,15 @@ pip install --upgrade pip -q
 pip install -r requirements.txt
 step "Python-Abhängigkeiten installiert."
 
-step "Smoke-Test: torch sieht GPU …"
-python -c "
+if [ "$TEST_MODE" != "1" ]; then
+  step "Smoke-Test: torch sieht GPU …"
+  python -c "
 import torch, sys
 if not torch.cuda.is_available():
     sys.exit('torch.cuda.is_available() == False — falsches torch-Wheel installiert (CPU statt CUDA)')
 print(f'  torch {torch.__version__} | CUDA {torch.version.cuda} | GPU: {torch.cuda.get_device_name(0)}')
 " || fail "Smoke-Test gescheitert — Batch-Start abgebrochen"
+fi
 
 # ── .env schreiben ────────────────────────────────────────────────────────────
 step ".env-Datei erstellen …"
