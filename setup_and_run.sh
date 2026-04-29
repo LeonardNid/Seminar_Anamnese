@@ -52,6 +52,27 @@ if [ -z "${HF_TOKEN:-}" ]; then
   HF_TOKEN=""
 fi
 
+# ── Pre-Flight-Checks ────────────────────────────────────────────────────────
+step "Pre-Flight-Checks …"
+
+# GPU: nvidia-smi muss da sein; wenn nicht → falsches AMI gewählt
+if ! command -v nvidia-smi &>/dev/null; then
+  fail "nvidia-smi nicht gefunden — falsches AMI. Starte eine Instanz mit
+  'Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.4 (Ubuntu 22.04)' (im EC2-Console-Suchfeld)"
+fi
+nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null \
+  | head -1 \
+  | while IFS=',' read -r gpu_name gpu_mem; do
+      step "GPU erkannt: ${gpu_name} |${gpu_mem}"
+    done
+
+# Disk-Space: mindestens 80 GB frei (Ollama ~40GB, Whisper ~3GB, venv ~5GB, Reserve)
+FREE_GB=$(df -BG / | awk 'NR==2 {gsub(/G/,"",$4); print $4}')
+if [ "${FREE_GB:-0}" -lt 80 ]; then
+  fail "Nur ${FREE_GB} GB auf / frei — mindestens 80 GB benötigt. Starte die Instanz mit ≥100 GB EBS gp3 als Root-Volume."
+fi
+step "Disk-Space OK: ${FREE_GB} GB frei"
+
 # ── System-Pakete ─────────────────────────────────────────────────────────────
 step "System-Pakete installieren …"
 sudo apt-get update -y -qq
@@ -73,13 +94,33 @@ if systemctl is-active --quiet ollama 2>/dev/null; then
   warn "Ollama-Service läuft bereits."
 else
   ollama serve >/tmp/ollama.log 2>&1 &
-  echo "Warte 8 Sekunden auf Ollama …"
-  sleep 8
+  echo "Warte auf Ollama-Server …"
+  for i in $(seq 1 60); do
+    if curl -sf http://localhost:11434/api/tags >/dev/null 2>&1; then
+      echo "Ollama bereit nach ${i}s"
+      break
+    fi
+    if [ "$i" = "60" ]; then
+      fail "Ollama-Server nicht erreichbar nach 60s — siehe /tmp/ollama.log"
+    fi
+    sleep 1
+  done
 fi
 
 # ── Modell pullen ─────────────────────────────────────────────────────────────
 step "Ollama-Modell pullen: ${OLLAMA_MODEL} …"
-ollama pull "$OLLAMA_MODEL"
+for _attempt in 1 2 3; do
+  if ollama pull "$OLLAMA_MODEL"; then
+    break
+  fi
+  warn "Ollama-Pull Versuch ${_attempt}/3 fehlgeschlagen — retry in 10s"
+  sleep 10
+  if [ "$_attempt" = "3" ]; then
+    fail "Ollama-Pull nach 3 Versuchen gescheitert"
+  fi
+done
+ollama list | grep -qF "${OLLAMA_MODEL%%:*}" \
+  || fail "Ollama-Modell nach Pull nicht in 'ollama list' — Pull unvollständig"
 
 # ── Repo klonen ───────────────────────────────────────────────────────────────
 step "GitHub-Repo klonen (nur benötigte Dateien) …"
@@ -103,8 +144,16 @@ python3 -m venv .venv
 # shellcheck disable=SC1091
 source .venv/bin/activate
 pip install --upgrade pip -q
-pip install -r requirements.txt -q
+pip install -r requirements.txt
 step "Python-Abhängigkeiten installiert."
+
+step "Smoke-Test: torch sieht GPU …"
+python -c "
+import torch, sys
+if not torch.cuda.is_available():
+    sys.exit('torch.cuda.is_available() == False — falsches torch-Wheel installiert (CPU statt CUDA)')
+print(f'  torch {torch.__version__} | CUDA {torch.version.cuda} | GPU: {torch.cuda.get_device_name(0)}')
+" || fail "Smoke-Test gescheitert — Batch-Start abgebrochen"
 
 # ── .env schreiben ────────────────────────────────────────────────────────────
 step ".env-Datei erstellen …"
