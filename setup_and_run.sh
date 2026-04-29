@@ -53,31 +53,27 @@ if [ -z "${HF_TOKEN:-}" ]; then
 fi
 
 # ── Pre-Flight-Checks ────────────────────────────────────────────────────────
-if [ "$TEST_MODE" = "1" ]; then
-  warn "TEST_MODE=1 — Pre-Flight-Checks (GPU, Disk) werden übersprungen."
-else
-
 step "Pre-Flight-Checks …"
 
-# GPU: nvidia-smi muss da sein; wenn nicht → falsches AMI gewählt
+# GPU: nur Warnung — Batch läuft auch auf CPU, dauert aber deutlich länger
 if ! command -v nvidia-smi &>/dev/null; then
-  fail "nvidia-smi nicht gefunden — falsches AMI. Starte eine Instanz mit
-  'Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.4 (Ubuntu 22.04)' (im EC2-Console-Suchfeld)"
+  warn "nvidia-smi nicht gefunden — Batch wird auf CPU laufen (Whisper large-v3 + 70b-Modell sehr langsam)."
+else
+  nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null \
+    | head -1 \
+    | while IFS=',' read -r gpu_name gpu_mem; do
+        step "GPU erkannt: ${gpu_name} |${gpu_mem}"
+      done
 fi
-nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null \
-  | head -1 \
-  | while IFS=',' read -r gpu_name gpu_mem; do
-      step "GPU erkannt: ${gpu_name} |${gpu_mem}"
-    done
 
-# Disk-Space: mindestens 80 GB frei (Ollama ~40GB, Whisper ~3GB, venv ~5GB, Reserve)
-FREE_GB=$(df -BG / | awk 'NR==2 {gsub(/G/,"",$4); print $4}')
-if [ "${FREE_GB:-0}" -lt 80 ]; then
-  fail "Nur ${FREE_GB} GB auf / frei — mindestens 80 GB benötigt. Starte die Instanz mit ≥100 GB EBS gp3 als Root-Volume."
+# Disk-Space: hier wird wirklich abgebrochen — ohne Platz scheitert der 40GB-Pull unweigerlich
+if [ "$TEST_MODE" != "1" ]; then
+  FREE_GB=$(df -BG / | awk 'NR==2 {gsub(/G/,"",$4); print $4}')
+  if [ "${FREE_GB:-0}" -lt 80 ]; then
+    fail "Nur ${FREE_GB} GB auf / frei — mindestens 80 GB benötigt. Starte die Instanz mit ≥100 GB EBS gp3 als Root-Volume."
+  fi
+  step "Disk-Space OK: ${FREE_GB} GB frei"
 fi
-step "Disk-Space OK: ${FREE_GB} GB frei"
-
-fi  # end TEST_MODE skip
 
 # ── System-Pakete ─────────────────────────────────────────────────────────────
 step "System-Pakete installieren …"
@@ -153,15 +149,14 @@ pip install --upgrade pip -q
 pip install -r requirements.txt
 step "Python-Abhängigkeiten installiert."
 
-if [ "$TEST_MODE" != "1" ]; then
-  step "Smoke-Test: torch sieht GPU …"
-  python -c "
-import torch, sys
-if not torch.cuda.is_available():
-    sys.exit('torch.cuda.is_available() == False — falsches torch-Wheel installiert (CPU statt CUDA)')
-print(f'  torch {torch.__version__} | CUDA {torch.version.cuda} | GPU: {torch.cuda.get_device_name(0)}')
-" || fail "Smoke-Test gescheitert — Batch-Start abgebrochen"
-fi
+step "Smoke-Test: torch-Installation prüfen …"
+python -c "
+import torch
+if torch.cuda.is_available():
+    print(f'  torch {torch.__version__} | CUDA {torch.version.cuda} | GPU: {torch.cuda.get_device_name(0)}')
+else:
+    print(f'  torch {torch.__version__} | Kein CUDA — Batch läuft auf CPU')
+"
 
 # ── .env schreiben ────────────────────────────────────────────────────────────
 step ".env-Datei erstellen …"
