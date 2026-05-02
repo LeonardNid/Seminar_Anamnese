@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Batch runner: reuse AssemblyAI STT output from history.json, run only
-Format+SOAP with gemma4:26b (or any model set via OLLAMA_MODEL).
+Batch runner: Whisper large-v3-turbo STT + Format+SOAP mit gemma4
+(oder beliebiges Modell per OLLAMA_MODEL / WHISPER_MODEL).
 
 Monitoring:
   tail -f logs/batch_gemma4_log.txt   # Fortschritt & Statistiken
@@ -17,20 +17,31 @@ import time
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
+from faster_whisper import WhisperModel
 
 load_dotenv()
+
+# ── GPU detection ─────────────────────────────────────────────────────────────
+try:
+    import torch
+    _gpu_available = torch.cuda.is_available()
+except ImportError:
+    _gpu_available = False
+
+_device       = "cuda" if _gpu_available else "cpu"
+_compute_type = "float16" if _gpu_available else "int8"
 
 # ── Config ────────────────────────────────────────────────────────────────────
 SAUERKRAUT_API_KEY  = os.getenv("SAUERKRAUT_API_KEY", "ollama")
 SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v1")
+WHISPER_MODEL       = os.getenv("WHISPER_MODEL", "large-v3-turbo")
 MODEL_NAME          = os.getenv("OLLAMA_MODEL", "gemma4:e4b")
 HISTORY_FILE        = "history.json"
 CHECKPOINT_FILE     = "logs/batch_gemma4_checkpoint.json"
 LOG_FILE            = "logs/batch_gemma4_log.txt"
 LIVE_FILE           = "logs/llm_live.txt"
 SKIP_FILE           = "logs/skip_current"
-SOURCE_STT_LABEL    = "AssemblyAI (Cloud)"
-STT_LABEL           = SOURCE_STT_LABEL
+STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
 LLM_LABEL           = MODEL_NAME
 LANGUAGE            = "de"
 
@@ -108,15 +119,31 @@ def save_to_history(raw, formatted, soap, meta):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=4)
 
-# ── Load source transcripts ───────────────────────────────────────────────────
-def load_assemblyai_transcripts():
-    history = load_history()
-    seen = {}
-    for entry in history:
-        af = entry.get("audio_file", "")
-        if entry.get("stt_model") == SOURCE_STT_LABEL and af and af not in seen:
-            seen[af] = entry
-    return seen
+# ── STT ───────────────────────────────────────────────────────────────────────
+def transcribe(audio_path):
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+        lf.write(f"[{ts}] === STT (Whisper {WHISPER_MODEL}) ===\n\n")
+
+    print(f"\n{'─'*60}\n[LIVE] STT — Whisper {WHISPER_MODEL}\n{'─'*60}", flush=True)
+
+    segments_gen, _ = whisper_model.transcribe(
+        audio_path, language=LANGUAGE, beam_size=5, word_timestamps=True
+    )
+
+    whisper_segments = []
+    live_fh = open(LIVE_FILE, "a", encoding="utf-8")
+    for s in segments_gen:
+        text = s.text.strip()
+        line = f"[{s.start:6.1f}s → {s.end:6.1f}s]  {text}"
+        print(line, flush=True)
+        live_fh.write(line + "\n")
+        live_fh.flush()
+        whisper_segments.append({"start": s.start, "end": s.end, "text": text})
+    live_fh.close()
+    print(f"{'─'*60}", flush=True)
+
+    return "\n".join(s["text"] for s in whisper_segments if s["text"])
 
 # ── LLM helpers ───────────────────────────────────────────────────────────────
 FORMAT_PROMPT_DE = """
@@ -147,6 +174,15 @@ Format-Vorgaben:
 Bitte antworte ausschließlich mit den formatierten SOAP Notes auf Deutsch und vermeide
 jegliche einleitenden oder abschließenden Floskeln. Nutze eine professionelle, präzise und klinische Ausdrucksweise.
 """
+
+log("=== gemma4 Batch Start ===")
+log(f"GPU verfügbar: {_gpu_available} | Device: {_device} | Compute: {_compute_type}")
+log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME}")
+
+log(f"Lade Whisper {WHISPER_MODEL} …")
+t0 = time.time()
+whisper_model = WhisperModel(WHISPER_MODEL, device=_device, compute_type=_compute_type)
+log(f"Whisper geladen in {round(time.time()-t0,1)}s")
 
 llm_client = OpenAI(api_key=SAUERKRAUT_API_KEY, base_url=SAUERKRAUT_BASE_URL)
 
@@ -209,15 +245,6 @@ def llm_call(system_prompt, user_content, phase_name="LLM"):
     return result, False
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-log("=== gemma4 Batch Start (STT wiederverwendet von AssemblyAI) ===")
-log(f"LLM: {MODEL_NAME}  |  STT: wiederverwendet von {SOURCE_STT_LABEL}")
-
-source_map = load_assemblyai_transcripts()
-log(f"AssemblyAI-Transkripte geladen: {len(source_map)} Dateien")
-for f in AUDIO_FILE_ORDER:
-    status = "OK" if f in source_map else "FEHLT"
-    log(f"  [{status}] {f}")
-
 checkpoint   = load_checkpoint()
 already_done = set(checkpoint["done"])
 todo = [f for f in AUDIO_FILE_ORDER if f not in already_done]
@@ -228,18 +255,30 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
     log(f"Job {idx}/{len(AUDIO_FILE_ORDER)}: {file_name}")
     log(f"{'='*60}")
 
-    if file_name not in source_map:
-        log("FEHLER: Kein AssemblyAI-Transkript gefunden — überspringe.")
+    if not os.path.exists(file_name):
+        log(f"FEHLER: Audiodatei nicht gefunden — überspringe: {file_name}")
         continue
 
-    source_entry = source_map[file_name]
-    raw = source_entry["raw"]
-    audio_size = source_entry.get("audio_size_bytes", 0)
+    audio_size = os.path.getsize(file_name)
     size_mb = round(audio_size / (1024 * 1024), 1)
-    log(f"Rohtranskript: {len(raw)} Zeichen | Audio: {size_mb} MB (aus history)")
+    log(f"Audio: {size_mb} MB")
 
     pipeline_start = time.time()
     abort_reason   = None
+
+    # ── STT ──────────────────────────────────────────────────────────────────
+    raw = ""
+    stt_dur = 0
+    if not abort_reason:
+        log(f"Phase 0/2: STT (Whisper {WHISPER_MODEL}) …")
+        stt_start = time.time()
+        try:
+            raw = transcribe(file_name)
+        except Exception as e:
+            log(f"FEHLER STT: {e} — überspringe diese Datei.")
+            continue
+        stt_dur = round(time.time() - stt_start, 2)
+        log(f"STT fertig: {stt_dur}s | {len(raw)} Zeichen")
 
     # ── Skip-Check vor Format ─────────────────────────────────────────────────
     if check_skip():
@@ -300,7 +339,7 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
         "audio_file":       file_name,
         "audio_size_bytes": audio_size,
         "stats": {
-            "stt_duration_s":       0,
+            "stt_duration_s":       stt_dur,
             "format_duration_s":    format_dur,
             "soap_duration_s":      soap_dur,
             "total_duration_s":     total_dur,
@@ -318,7 +357,7 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
         mark_done(file_name)
         log("Abgebrochener Eintrag in history.json gespeichert ✓")
     else:
-        log(f"Gesamt (LLM only): {total_dur}s  (Format {format_dur}s + SOAP {soap_dur}s)")
+        log(f"Gesamt: {total_dur}s  (STT {stt_dur}s + Format {format_dur}s + SOAP {soap_dur}s)")
         save_to_history(raw, formatted, soap, meta)
         mark_done(file_name)
         log("Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓")
