@@ -20,10 +20,10 @@ STT_LABEL            = "Speechmatics (Cloud)"
 LLM_LABEL            = "OpenAI GPT-4o"
 LANGUAGE             = "de"
 
-if not OPENAI_API_KEY:
-    raise SystemExit("FEHLER: OPENAI_API_KEY nicht gesetzt.")
-if not SPEECHMATICS_API_KEY:
-    raise SystemExit("FEHLER: SPEECHMATICS_API_KEY nicht gesetzt.")
+# ── Pflicht-Token-Check ───────────────────────────────────────────────────────
+for var in ("OPENAI_API_KEY", "SPEECHMATICS_API_KEY", "ASSEMBLYAI_API_KEY", "HF_TOKEN"):
+    if not os.getenv(var):
+        raise SystemExit(f"FEHLER: {var} nicht gesetzt.")
 
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 

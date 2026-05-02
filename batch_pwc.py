@@ -240,7 +240,7 @@ def transcribe_assemblyai():
         return data.get("text") or "Fehler: Kein Text transkribiert"
     return "\n".join(f"Speaker {u['speaker']}: {u['text']}" for u in utterances)
 
-# ── STT: Whisper + optional pyannote ─────────────────────────────────────────
+# ── STT: Whisper + pyannote (beide Pflicht) ───────────────────────────────────
 _whisper_model    = None
 _diarize_pipeline = None
 _whisper_raw      = None  # cached raw after first run
@@ -263,19 +263,13 @@ def _init_whisper():
     _whisper_model = WhisperModel("large-v3-turbo", device=device, compute_type=compute_type)
     log(f"Whisper geladen in {round(time.time()-t0,1)}s")
 
-    if HF_TOKEN:
-        try:
-            from pyannote.audio import Pipeline as PyannotePipeline
-            log("Lade pyannote speaker-diarization-3.1 …")
-            t0 = time.time()
-            _diarize_pipeline = PyannotePipeline.from_pretrained(
-                "pyannote/speaker-diarization-3.1", token=HF_TOKEN
-            )
-            log(f"pyannote geladen in {round(time.time()-t0,1)}s")
-        except Exception as e:
-            log(f"WARNUNG: pyannote nicht verfügbar ({e}) — ohne Diarisierung")
-    else:
-        log("HF_TOKEN nicht gesetzt — Whisper ohne Sprecher-Diarisierung")
+    from pyannote.audio import Pipeline as PyannotePipeline
+    log("Lade pyannote speaker-diarization-3.1 …")
+    t0 = time.time()
+    _diarize_pipeline = PyannotePipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.1", token=HF_TOKEN
+    )
+    log(f"pyannote geladen in {round(time.time()-t0,1)}s")
 
 def transcribe_whisper(audio_bytes):
     global _whisper_raw
@@ -293,41 +287,38 @@ def transcribe_whisper(audio_bytes):
             tmp_path,
             language=LANGUAGE,
             beam_size=5,
-            word_timestamps=bool(_diarize_pipeline),
+            word_timestamps=True,
         )
         whisper_segments = [
             {"start": s.start, "end": s.end, "text": s.text.strip()}
             for s in segments
         ]
 
-        if not _diarize_pipeline:
-            raw = " ".join(s["text"] for s in whisper_segments)
-        else:
-            diarization = _diarize_pipeline(tmp_path).speaker_diarization
+        diarization = _diarize_pipeline(tmp_path).speaker_diarization
 
-            def get_speaker(start, end):
-                overlap = {}
-                for turn, _, speaker in diarization.itertracks(yield_label=True):
-                    o = min(turn.end, end) - max(turn.start, start)
-                    if o > 0:
-                        overlap[speaker] = overlap.get(speaker, 0) + o
-                return max(overlap, key=overlap.get) if overlap else "SPEAKER_??"
+        def get_speaker(start, end):
+            overlap = {}
+            for turn, _, speaker in diarization.itertracks(yield_label=True):
+                o = min(turn.end, end) - max(turn.start, start)
+                if o > 0:
+                    overlap[speaker] = overlap.get(speaker, 0) + o
+            return max(overlap, key=overlap.get) if overlap else "SPEAKER_??"
 
-            lines = []
-            current_speaker = None
-            current_text    = []
-            for seg in whisper_segments:
-                speaker = get_speaker(seg["start"], seg["end"])
-                if speaker != current_speaker:
-                    if current_text:
-                        lines.append(f"{current_speaker}: {' '.join(current_text)}")
-                    current_speaker = speaker
-                    current_text    = [seg["text"]]
-                else:
-                    current_text.append(seg["text"])
-            if current_text:
-                lines.append(f"{current_speaker}: {' '.join(current_text)}")
-            raw = "\n".join(lines)
+        lines = []
+        current_speaker = None
+        current_text    = []
+        for seg in whisper_segments:
+            speaker = get_speaker(seg["start"], seg["end"])
+            if speaker != current_speaker:
+                if current_text:
+                    lines.append(f"{current_speaker}: {' '.join(current_text)}")
+                current_speaker = speaker
+                current_text    = [seg["text"]]
+            else:
+                current_text.append(seg["text"])
+        if current_text:
+            lines.append(f"{current_speaker}: {' '.join(current_text)}")
+        raw = "\n".join(lines)
     finally:
         os.remove(tmp_path)
 
@@ -448,6 +439,10 @@ def llm_call(combo, system_prompt, user_content, phase_name):
 # ── Startup checks ────────────────────────────────────────────────────────────
 log("=== PWC Batch Start ===")
 log(f"Audiodatei: {AUDIO_FILE}")
+
+if not HF_TOKEN:
+    log("FEHLER: HF_TOKEN nicht gesetzt — Speaker-Diarization ist Pflicht. Abbruch.")
+    raise SystemExit(1)
 
 if not os.path.exists(AUDIO_FILE):
     log(f"FEHLER: Datei nicht gefunden: {AUDIO_FILE}")

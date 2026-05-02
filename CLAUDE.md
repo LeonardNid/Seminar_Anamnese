@@ -59,6 +59,8 @@ nix-shell -p ffmpeg --run 'ffmpeg -i "input.mp4" -vn -c:a copy "output.m4a"'
 | `batch_local.py` | Earlier local batch runner (Whisper turbo + Sauerkraut 8b) |
 | `batch_cloud.py` | Earlier cloud batch runner (Speechmatics + GPT-4o) |
 | `batch_llama32.py` | Reuses Whisper STT from history, reruns LLM with llama3.2 |
+| `batch_gemma4.py` | All 12 audio files with Whisper large-v3-turbo STT + gemma4 LLM |
+| `batch_pwc.py` | Single file (`Anamnesegesrpäch PWC.mp3`) across 5 STT+LLM combinations; **HF_TOKEN is mandatory** (speaker diarization is always enabled, no fallback) |
 | `setup_and_run.sh` | One-command EC2 bootstrap: apt → Ollama → git sparse-checkout → venv → batch |
 
 ### `batch_ec2.py` internals
