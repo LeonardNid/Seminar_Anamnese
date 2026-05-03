@@ -19,6 +19,8 @@ import glob
 import json
 import time
 import tempfile
+import subprocess
+import warnings
 import requests
 from datetime import datetime
 from openai import OpenAI
@@ -26,6 +28,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 os.makedirs("logs", exist_ok=True)
+warnings.filterwarnings("ignore", message="std\\(\\): degrees of freedom")
 
 # ── Config ────────────────────────────────────────────────────────────────────
 # Filename uses NFD-encoded ä; glob resolves the actual on-disk name regardless of NFC/NFD
@@ -282,19 +285,40 @@ def transcribe_whisper(audio_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
         tmp.write(audio_bytes)
         tmp_path = tmp.name
+    wav_path = tmp_path.replace(".mp3", ".wav")
     try:
-        segments, _ = _whisper_model.transcribe(
+        # pyannote hat Sample-Count-Fehler mit MP3 → vorher in 16kHz-mono-WAV konvertieren
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", tmp_path, "-ar", "16000", "-ac", "1", wav_path],
+            check=True, capture_output=True,
+        )
+
+        ts = datetime.now().strftime("%H:%M:%S")
+        with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+            lf.write(f"[{ts}] === STT (Whisper large-v3-turbo) ===\n\n")
+        print(f"\n{'─'*60}\n[LIVE] STT — Whisper large-v3-turbo\n{'─'*60}", flush=True)
+
+        segments_gen, _ = _whisper_model.transcribe(
             tmp_path,
             language=LANGUAGE,
             beam_size=5,
             word_timestamps=True,
         )
-        whisper_segments = [
-            {"start": s.start, "end": s.end, "text": s.text.strip()}
-            for s in segments
-        ]
+        whisper_segments = []
+        live_fh = open(LIVE_FILE, "a", encoding="utf-8")
+        for s in segments_gen:
+            text = s.text.strip()
+            line = f"[{s.start:6.1f}s → {s.end:6.1f}s]  {text}"
+            print(line, flush=True)
+            live_fh.write(line + "\n")
+            live_fh.flush()
+            whisper_segments.append({"start": s.start, "end": s.end, "text": text})
+        live_fh.close()
+        print(f"{'─'*60}", flush=True)
 
-        diarization = _diarize_pipeline(tmp_path).speaker_diarization
+        log("Diarization läuft (pyannote, CPU — kann mehrere Minuten dauern) …")
+        diarization = _diarize_pipeline(wav_path).speaker_diarization
+        log("Diarization fertig.")
 
         def get_speaker(start, end):
             overlap = {}
@@ -320,7 +344,9 @@ def transcribe_whisper(audio_bytes):
             lines.append(f"{current_speaker}: {' '.join(current_text)}")
         raw = "\n".join(lines)
     finally:
-        os.remove(tmp_path)
+        for p in (tmp_path, wav_path):
+            if os.path.exists(p):
+                os.remove(p)
 
     _whisper_raw = raw
     return raw
