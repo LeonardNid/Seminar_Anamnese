@@ -1,47 +1,70 @@
 #!/usr/bin/env python3
 """
-Batch runner: reuse existing Whisper STT output, run only Format+SOAP with llama3.2.
-Reads raw transcripts from history.json (Whisper+Sauerkraut entries),
-skips STT entirely, runs Format+SOAP with llama3.2.
-Checkpoint: batch_llama32_checkpoint.json
-Log: batch_llama32_log.txt
+Batch runner: Whisper large-v3-turbo STT + Speaker-Diarization + Format+SOAP mit llama3.2.
+HF_TOKEN ist Pflicht (Speaker-Diarization, keine Ausnahme).
+
+Monitoring:
+  tail -f logs/batch_llama32_log.txt   # Fortschritt & Statistiken
+  tail -f logs/llm_live.txt            # LLM-Ausgabe live (Token für Token)
+
+Aktuelle Audio manuell überspringen (Batch läuft weiter):
+  touch logs/skip_current
 """
 
 import os
 import json
 import time
+import tempfile
+import subprocess
+import warnings
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
+from faster_whisper import WhisperModel
 
 load_dotenv()
 
+# ── GPU detection ─────────────────────────────────────────────────────────────
+try:
+    import torch
+    _gpu_available = torch.cuda.is_available()
+except ImportError:
+    _gpu_available = False
+
+_device       = "cuda" if _gpu_available else "cpu"
+_compute_type = "float16" if _gpu_available else "int8"
+
 # ── Config ────────────────────────────────────────────────────────────────────
-SAUERKRAUT_API_KEY  = os.getenv("SAUERKRAUT_API_KEY", "dummy-key")
-SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v1")
+OLLAMA_API_KEY      = os.getenv("SAUERKRAUT_API_KEY", "ollama")
+OLLAMA_BASE_URL     = os.getenv("SAUERKRAUT_BASE_URL", "http://localhost:11434/v1")
+HF_TOKEN            = os.getenv("HF_TOKEN", "")
+WHISPER_MODEL       = os.getenv("WHISPER_MODEL", "large-v3-turbo")
+MODEL_NAME          = "llama3.2"
 HISTORY_FILE        = "history.json"
 CHECKPOINT_FILE     = "logs/batch_llama32_checkpoint.json"
 LOG_FILE            = "logs/batch_llama32_log.txt"
-MODEL_NAME          = "llama3.2"
-STT_LABEL           = "Whisper Large-v3-turbo (Lokal)"
-LLM_LABEL           = "llama3.2"
+LIVE_FILE           = "logs/llm_live.txt"
+SKIP_FILE           = "logs/skip_current"
+STT_LABEL           = f"Whisper {WHISPER_MODEL} (Lokal)"
+LLM_LABEL           = MODEL_NAME
 LANGUAGE            = "de"
 
 AUDIO_FILE_ORDER = [
-    "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
-    "ChaosLapInMitte.wav",
-    "GedankenprüngeLapInMitte.wav",
-    "MeinungswechselLapinMitte.wav",
-    "OriginalDCEng.m4a",
-    "OriginalDC.m4a",
-    "OriginalDCWhiteNoise.m4a",
-    "OriginalLapBeiArzt.wav",
-    "OriginalLapInMitte.wav",
-    "SelbstkorrekturLapInMitte.wav",
-    "UnterbrechungLapInMitte.wav",
+    "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "audio/ChaosLapInMitte.wav",
+    "audio/GedankenprüngeLapInMitte.wav",
+    "audio/MeinungswechselLapinMitte.wav",
+    "audio/OriginalDC.m4a",
+    "audio/OriginalDCWhiteNoise.m4a",
+    "audio/OriginalLapBeiArzt.wav",
+    "audio/OriginalLapInMitte.wav",
+    "audio/SelbstkorrekturLapInMitte.wav",
+    "audio/UnterbrechungLapInMitte.wav",
 ]
 
 # ── Logging ───────────────────────────────────────────────────────────────────
+os.makedirs("logs", exist_ok=True)
+warnings.filterwarnings("ignore", message="std\\(\\): degrees of freedom")
 log_fh = open(LOG_FILE, "a", encoding="utf-8", buffering=1)
 
 def log(msg):
@@ -49,6 +72,13 @@ def log(msg):
     line = f"[{ts}] {msg}"
     print(line, flush=True)
     log_fh.write(line + "\n")
+
+# ── Skip-Signal ───────────────────────────────────────────────────────────────
+def check_skip():
+    if os.path.exists(SKIP_FILE):
+        os.remove(SKIP_FILE)
+        return True
+    return False
 
 # ── Checkpoint ────────────────────────────────────────────────────────────────
 def load_checkpoint():
@@ -92,31 +122,81 @@ def save_to_history(raw, formatted, soap, meta):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=4)
 
-# ── Load source transcripts ───────────────────────────────────────────────────
-def load_whisper_transcripts():
-    history = load_history()
-    seen = {}
-    for entry in history:
-        af = entry.get("audio_file", "")
-        if (entry.get("stt_model") == "Whisper Large-v3-turbo (Lokal)"
-                and entry.get("llm_model") == "Llama-3.1-SauerkrautLM-8b-Instruct"
-                and af and af not in seen):
-            seen[af] = entry
-    return seen
+# ── STT ───────────────────────────────────────────────────────────────────────
+def transcribe(audio_path):
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+        lf.write(f"[{ts}] === STT (Whisper {WHISPER_MODEL}) ===\n\n")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
+    print(f"\n{'─'*60}\n[LIVE] STT — Whisper {WHISPER_MODEL}\n{'─'*60}", flush=True)
+
+    segments_gen, _ = whisper_model.transcribe(
+        audio_path, language=LANGUAGE, beam_size=5, word_timestamps=True
+    )
+
+    whisper_segments = []
+    live_fh = open(LIVE_FILE, "a", encoding="utf-8")
+    for s in segments_gen:
+        text = s.text.strip()
+        line = f"[{s.start:6.1f}s → {s.end:6.1f}s]  {text}"
+        print(line, flush=True)
+        live_fh.write(line + "\n")
+        live_fh.flush()
+        whisper_segments.append({"start": s.start, "end": s.end, "text": text})
+    live_fh.close()
+    print(f"{'─'*60}", flush=True)
+
+    wav_fd, wav_path = tempfile.mkstemp(suffix=".wav")
+    os.close(wav_fd)
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path],
+            check=True, capture_output=True,
+        )
+        log("Diarization läuft (pyannote, CPU — kann mehrere Minuten dauern) …")
+        diarization = diarize_pipeline(wav_path).speaker_diarization
+        log("Diarization fertig.")
+    finally:
+        if os.path.exists(wav_path):
+            os.remove(wav_path)
+
+    def get_speaker(start, end):
+        overlap = {}
+        for turn, _, speaker in diarization.itertracks(yield_label=True):
+            o = min(turn.end, end) - max(turn.start, start)
+            if o > 0:
+                overlap[speaker] = overlap.get(speaker, 0) + o
+        return max(overlap, key=overlap.get) if overlap else "SPEAKER_??"
+
+    lines = []
+    current_speaker = None
+    current_text    = []
+    for seg in whisper_segments:
+        speaker = get_speaker(seg["start"], seg["end"])
+        if speaker != current_speaker:
+            if current_text:
+                lines.append(f"{current_speaker}: {' '.join(current_text)}")
+            current_speaker = speaker
+            current_text    = [seg["text"]]
+        else:
+            current_text.append(seg["text"])
+    if current_text:
+        lines.append(f"{current_speaker}: {' '.join(current_text)}")
+    return "\n".join(lines)
+
+# ── LLM helpers ───────────────────────────────────────────────────────────────
 FORMAT_PROMPT_DE = """
 Du bist ein hilfreicher Assistent. Hier ist ein Rohtranskript eines Arzt-Patienten-Gesprächs mit generischen Sprecher-Labels (z.B. Speaker 1, Speaker 2, S1, S2 oder SPEAKER_00).
 Deine Aufgabe:
 1. Identifiziere anhand des Kontextes, wer der Arzt und wer der Patient ist.
 2. Finde den Namen des Patienten heraus, falls er sich vorstellt.
 3. Schreibe das Transkript um, indem du die generischen Sprecher-Labels ersetzt durch "Arzt:" und "[Name des Patienten]:" (oder "Patient(in):", falls kein Name genannt wird).
-4. Verändere den eigentlichen gesprochenen Text NICHT. Ergänze nichts, loesche nichts, fasse nichts zusammen.
+4. Verändere den eigentlichen gesprochenen Text NICHT. Ergänze nichts, lösche nichts, fasse nichts zusammen.
 
 KRITISCHE REGELN:
-- Erstelle unter keinen Umstaenden eine Zusammenfassung, SOAP-Notes oder Diagnosen.
+- Erstelle unter keinen Umständen eine Zusammenfassung, SOAP-Notes oder Diagnosen.
 - Deine EINZIGE Aufgabe ist das Suchen und Ersetzen der Sprecher-Labels im Text.
-- Gib AUSSCHLIESSLICH das formatierte Transkript zurueck und beginne sofort mit dem ersten Sprecher, ohne einleitende Worte.
+- Gib AUSSCHLIESSLICH das formatierte Transkript zurück und beginne sofort mit dem ersten Sprecher, ohne einleitende Worte.
 """
 
 SOAP_PROMPT_DE = """
@@ -127,37 +207,91 @@ Dokumentation im SOAP-Format (Subjective, Objective, Assessment, Plan) umzuwande
 Format-Vorgaben:
 - S (Subjektiv): Symptome und Beschwerden aus Sicht des Patienten.
 - O (Objektiv): Beobachtungen und messbare Parameter durch den Arzt.
-- A (Assessment): Einschaetzung, moegliche Diagnosen.
+- A (Assessment): Einschätzung, mögliche Diagnosen.
 - P (Plan): Geplante Untersuchungen, Therapie, Medikation.
 
-Bitte antworte ausschliesslich mit den formatierten SOAP Notes auf Deutsch und vermeide
-jegliche einleitenden oder abschliessenden Floskeln. Nutze eine professionelle, praezise und klinische Ausdrucksweise.
+Bitte antworte ausschließlich mit den formatierten SOAP Notes auf Deutsch und vermeide
+jegliche einleitenden oder abschließenden Floskeln. Nutze eine professionelle, präzise und klinische Ausdrucksweise.
 """
 
-llm_client = OpenAI(api_key=SAUERKRAUT_API_KEY, base_url=SAUERKRAUT_BASE_URL)
+log("=== llama3.2 Batch Start ===")
 
-def llm_call(system_prompt, user_content):
-    response = llm_client.chat.completions.create(
+if not HF_TOKEN:
+    log("FEHLER: HF_TOKEN nicht gesetzt — Speaker-Diarization ist Pflicht. Abbruch.")
+    raise SystemExit(1)
+
+log(f"GPU verfügbar: {_gpu_available} | Device: {_device} | Compute: {_compute_type}")
+log(f"Whisper-Modell: {WHISPER_MODEL} | LLM: {MODEL_NAME}")
+
+log(f"Lade Whisper {WHISPER_MODEL} …")
+t0 = time.time()
+whisper_model = WhisperModel(WHISPER_MODEL, device=_device, compute_type=_compute_type)
+log(f"Whisper geladen in {round(time.time()-t0,1)}s")
+
+from pyannote.audio import Pipeline as PyannotePipeline
+log("Lade pyannote speaker-diarization-3.1 …")
+t0 = time.time()
+diarize_pipeline = PyannotePipeline.from_pretrained(
+    "pyannote/speaker-diarization-3.1", token=HF_TOKEN
+)
+log(f"pyannote geladen in {round(time.time()-t0,1)}s")
+
+llm_client = OpenAI(api_key=OLLAMA_API_KEY, base_url=OLLAMA_BASE_URL)
+
+def llm_call(system_prompt, user_content, phase_name="LLM"):
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "w", encoding="utf-8") as lf:
+        lf.write(f"[{ts}] === {phase_name} ===\n\n")
+
+    print(f"\n{'─'*60}\n[LIVE] {phase_name}\n{'─'*60}", flush=True)
+
+    stream = llm_client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_content},
         ],
         temperature=0.2,
-        stream=False,
+        stream=True,
     )
-    return response.choices[0].message.content or ""
+
+    collected = []
+    last_skip_check = time.time()
+    live_fh = open(LIVE_FILE, "a", encoding="utf-8")
+
+    try:
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            if delta:
+                print(delta, end="", flush=True)
+                live_fh.write(delta)
+                live_fh.flush()
+                collected.append(delta)
+
+            if time.time() - last_skip_check >= 1.0:
+                last_skip_check = time.time()
+                if check_skip():
+                    partial = "".join(collected)
+                    live_fh.write(f"\n\n[SKIP nach {len(partial)} Zeichen]\n")
+                    live_fh.close()
+                    print(f"\n{'─'*60}", flush=True)
+                    log(f"⏭  SKIP — {phase_name} abgebrochen ({len(partial)} Zeichen bisher gespeichert).")
+                    return partial or None, True
+    except Exception:
+        live_fh.close()
+        raise
+
+    live_fh.close()
+    result = "".join(collected)
+    print(f"\n{'─'*60}", flush=True)
+
+    ts = datetime.now().strftime("%H:%M:%S")
+    with open(LIVE_FILE, "a", encoding="utf-8") as lf:
+        lf.write(f"\n\n[{ts}] === {phase_name} fertig ({len(result)} Zeichen) ===\n")
+
+    return result, False
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-log("=== Llama3.2 Batch Start (STT reused from Whisper) ===")
-log(f"LLM: {MODEL_NAME}  |  STT: wiederverwendet von Whisper Large-v3-turbo")
-
-source_map = load_whisper_transcripts()
-log(f"Whisper-Transkripte geladen: {len(source_map)} Dateien")
-for f in AUDIO_FILE_ORDER:
-    status = "OK" if f in source_map else "FEHLT"
-    log(f"  [{status}] {f}")
-
 checkpoint   = load_checkpoint()
 already_done = set(checkpoint["done"])
 todo = [f for f in AUDIO_FILE_ORDER if f not in already_done]
@@ -168,65 +302,109 @@ for idx, file_name in enumerate(todo, start=len(already_done) + 1):
     log(f"Job {idx}/{len(AUDIO_FILE_ORDER)}: {file_name}")
     log(f"{'='*60}")
 
-    if file_name not in source_map:
-        log("FEHLER: Kein Whisper-Transkript gefunden — ueberspringe.")
+    if not os.path.exists(file_name):
+        log(f"FEHLER: Audiodatei nicht gefunden — überspringe: {file_name}")
         continue
 
-    source_entry = source_map[file_name]
-    raw = source_entry["raw"]
-    audio_size = source_entry.get("audio_size_bytes", 0)
-    size_mb = round(audio_size / (1024 * 1024), 1)
-    log(f"Rohtranskript: {len(raw)} Zeichen | Audio: {size_mb} MB (aus history)")
+    audio_size = os.path.getsize(file_name)
+    size_mb    = round(audio_size / (1024 * 1024), 1)
+    log(f"Audio: {size_mb} MB")
 
     pipeline_start = time.time()
+    abort_reason   = None
+
+    # ── STT ──────────────────────────────────────────────────────────────────
+    raw = ""
+    stt_dur = 0
+    log(f"Phase 1/3: STT (Whisper {WHISPER_MODEL}) …")
+    stt_start = time.time()
+    try:
+        raw = transcribe(file_name)
+    except Exception as e:
+        log(f"FEHLER STT: {e} — überspringe diese Datei.")
+        continue
+    stt_dur = round(time.time() - stt_start, 2)
+    log(f"STT fertig: {stt_dur}s | {len(raw)} Zeichen")
+
+    if check_skip():
+        log("⏭  SKIP-Signal vor Format — überspringe diese Datei.")
+        abort_reason = "manual_skip"
 
     # ── Format ───────────────────────────────────────────────────────────────
-    log(f"Phase 1/2: Transkript formatieren ({MODEL_NAME}) ...")
-    format_start = time.time()
-    try:
-        formatted = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}")
-    except Exception as e:
-        log(f"FEHLER Format: {e} — weiter mit Rohtranskript")
-        formatted = raw
-    format_dur = round(time.time() - format_start, 2)
-    log(f"Format fertig: {format_dur}s | {len(formatted)} Zeichen")
+    formatted  = raw
+    format_dur = 0
+    if not abort_reason:
+        log(f"Phase 2/3: Transkript formatieren ({MODEL_NAME}) …")
+        format_start = time.time()
+        try:
+            result, skipped = llm_call(FORMAT_PROMPT_DE, f"Rohtranskript:\n\n{raw}", "Format-LLM")
+            if skipped:
+                formatted    = result if result else raw
+                abort_reason = "manual_skip"
+            else:
+                formatted = result
+        except Exception as e:
+            log(f"FEHLER Format: {e} — weiter mit Rohtranskript")
+        format_dur = round(time.time() - format_start, 2)
+        if not abort_reason:
+            log(f"Format fertig: {format_dur}s | {len(formatted)} Zeichen")
+
+    if not abort_reason and check_skip():
+        log("⏭  SKIP-Signal vor SOAP — überspringe diese Datei.")
+        abort_reason = "manual_skip"
 
     # ── SOAP ─────────────────────────────────────────────────────────────────
-    log(f"Phase 2/2: SOAP-Notes generieren ({MODEL_NAME}) ...")
-    soap_start = time.time()
-    try:
-        soap = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}")
-    except Exception as e:
-        log(f"FEHLER SOAP: {e}")
-        soap = f"Fehler bei der SOAP-Generierung: {e}"
-    soap_dur = round(time.time() - soap_start, 2)
+    soap     = ""
+    soap_dur = 0
+    if not abort_reason:
+        log(f"Phase 3/3: SOAP-Notes generieren ({MODEL_NAME}) …")
+        soap_start = time.time()
+        try:
+            result, skipped = llm_call(SOAP_PROMPT_DE, f"Hier ist das Transkript:\n\n{formatted}", "SOAP-LLM")
+            if skipped:
+                soap         = result if result else ""
+                abort_reason = "manual_skip"
+            else:
+                soap = result
+        except Exception as e:
+            log(f"FEHLER SOAP: {e}")
+            soap = f"Fehler: {e}"
+        soap_dur = round(time.time() - soap_start, 2)
+        if not abort_reason:
+            log(f"SOAP fertig: {soap_dur}s | {len(soap)} Zeichen")
+
     total_dur = round(time.time() - pipeline_start, 2)
-    log(f"SOAP fertig: {soap_dur}s | {len(soap)} Zeichen")
-    log(f"Gesamt (LLM only): {total_dur}s  (Format {format_dur}s + SOAP {soap_dur}s)")
 
     # ── Speichern ─────────────────────────────────────────────────────────────
-    if soap.startswith("Fehler"):
-        log("SOAP enthaelt Fehler — nicht gespeichert.")
-    else:
-        meta = {
-            "stt_model":        STT_LABEL,
-            "llm_model":        LLM_LABEL,
-            "language":         LANGUAGE,
-            "audio_file":       file_name,
-            "audio_size_bytes": audio_size,
-            "stats": {
-                "stt_duration_s":       0,
-                "format_duration_s":    format_dur,
-                "soap_duration_s":      soap_dur,
-                "total_duration_s":     total_dur,
-                "raw_char_count":       len(raw),
-                "formatted_char_count": len(formatted),
-                "soap_char_count":      len(soap),
-            },
-        }
+    meta = {
+        "stt_model":        STT_LABEL,
+        "llm_model":        LLM_LABEL,
+        "language":         LANGUAGE,
+        "audio_file":       file_name,
+        "audio_size_bytes": audio_size,
+        "stats": {
+            "stt_duration_s":       stt_dur,
+            "format_duration_s":    format_dur,
+            "soap_duration_s":      soap_dur,
+            "total_duration_s":     total_dur,
+            "raw_char_count":       len(raw),
+            "formatted_char_count": len(formatted),
+            "soap_char_count":      len(soap),
+        },
+    }
+
+    if abort_reason:
+        log(f"⏭  Abgebrochen ({abort_reason}) nach {total_dur}s — bisheriger Stand wird gespeichert.")
+        meta["aborted"]      = True
+        meta["abort_reason"] = abort_reason
         save_to_history(raw, formatted, soap, meta)
         mark_done(file_name)
-        log("Gespeichert in history.json OK  |  Checkpoint aktualisiert OK")
+        log("Abgebrochener Eintrag in history.json gespeichert ✓")
+    else:
+        log(f"Gesamt: {total_dur}s  (STT {stt_dur}s + Format {format_dur}s + SOAP {soap_dur}s)")
+        save_to_history(raw, formatted, soap, meta)
+        mark_done(file_name)
+        log("Gespeichert in history.json ✓  |  Checkpoint aktualisiert ✓")
 
 log(f"\n{'='*60}")
 log("=== BATCH ABGESCHLOSSEN ===")
