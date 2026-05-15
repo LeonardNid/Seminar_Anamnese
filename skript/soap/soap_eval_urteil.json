@@ -1,0 +1,23 @@
+{
+  "scoring": {
+    "max_pro_sektion": 2,
+    "max_gesamt": 8,
+    "sektionen": ["S", "O", "A", "P"]
+  },
+  "urteil_mapping": {
+    "7": "akzeptabel",
+    "8": "akzeptabel",
+    "4": "ueberarbeitung_noetig",
+    "5": "ueberarbeitung_noetig",
+    "6": "ueberarbeitung_noetig",
+    "0": "nicht_verwendbar",
+    "1": "nicht_verwendbar",
+    "2": "nicht_verwendbar",
+    "3": "nicht_verwendbar"
+  },
+  "auto_nicht_verwendbar_wenn": {
+    "llm_fehlerrate_ueber_prozent": 90,
+    "soap_leer": true,
+    "begruendung": "LLM hat Transkript nicht korrekt formatiert (>90% Fehler im llm_check), SOAP-Inhalt nicht auswertbar"
+  }
+}

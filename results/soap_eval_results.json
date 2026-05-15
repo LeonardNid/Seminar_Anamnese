@@ -1,0 +1,2241 @@
+[
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Unterbrechungen",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/UnterbrechungLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Patientin musste direkt auf die Toilette rennen (möglicher Hinweis auf Durchfall) – nicht erwähnt",
+        "Nahrungsanamnese fehlt vollständig: Salat mittags, Grillen abends, möglicherweise nicht durchgegartes Hähnchen (rosa) – wichtiger ätiologischer Hinweis"
+      ]
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [
+        "Frau Klein sei bei der Untersuchung 'leicht unruhig und ängstlich' – kein Untersuchungsbefund im Transkript",
+        "'Es gibt keine anderen besonderen Symptome wie Übelkeit, Erbrechen oder Durchfall' – widerspricht dem Transkript explizit, da Erbrechen (zweimal) klar erwähnt wird"
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Pankreatitis – kommt im Transkript nicht vor und wird vom Arzt zu keinem Zeitpunkt erwähnt oder angedeutet"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Bluttest für die Magensäure – nicht im Transkript",
+        "Urintest – nicht im Transkript",
+        "Empfehlung, bei Verschlechterung sofort den Notarzt zu rufen – nicht im Transkript"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Selbstkorrekturen",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/SelbstkorrekturLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Schmerz strahlt in die linke Schläfe aus — Patient korrigierte sich im Transkript explizit zu 'rechte Schläfe'"
+      ],
+      "auslassungen": [
+        "Patient verneinte Übelkeit explizit ('Nein, zum Glück nicht')",
+        "Wirkung von Ibuprofen 600 war laut Transkript 'fraglich', nicht bestätigt"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [
+        "'Leichte Besserung nach Ibuprofene 600' als Tatsache dargestellt — im Transkript (Arztnotiz) als 'fraglich' bezeichnet"
+      ],
+      "auslassungen": [
+        "Kein Übelkeit (explizit verneint, relevanter negativer Befund)",
+        "Paracetamol 500 ohne Wirkung fehlt im objektiven Befund"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Migräne als mögliche Diagnose — wird im Transkript nicht genannt",
+        "Tensionsschmerzen als mögliche Diagnose — wird im Transkript nicht genannt",
+        "'Neurologische Ursache' als Einschätzung — wird im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Blutdruck- und Blutzuckerüberprüfung — nicht im Transkript erwähnt",
+        "MRT oder CT-Scan — nicht im Transkript erwähnt",
+        "Antihistaminika zur Symptomlinderung — nicht im Transkript erwähnt",
+        "Körperliche Untersuchung als geplante Maßnahme — nicht im Transkript erwähnt",
+        "Fortsetzung der Ibuprofene 600 als Therapieplan — nicht im Transkript erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "LapInMitte",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/OriginalLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Medikamenteneinnahme / Hausmittel (Hustenbonbons, Kamillentee) fehlen vollständig",
+        "Keine Ruhedyspnoe wird nicht explizit erwähnt"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Keine Angabe zu fehlender spezifischer Vormedikation / Hausmitteln",
+        "Beginn der Auskultation (letzte Arzthandlung im Transkript) wird nicht erwähnt"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnoseeinschätzung 'bakterielle Atemwegsinfektion' kommt im Transkript nicht vor",
+        "Differentialdiagnosen 'Bronchitis' und 'Pneumonie' werden im Transkript nicht genannt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Bluttest als geplante Maßnahme wird im Transkript nicht erwähnt",
+        "Röntgenaufnahme wird im Transkript nicht erwähnt",
+        "Antibiotika-Empfehlung kommt im Transkript nicht vor",
+        "Empfehlung 'Hustenbonbons vermeiden' ist halluziniert — der Arzt äußert sich dazu nicht"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 2,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "LapBeiArzt",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/OriginalLapBeiArzt.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Keine Ruhedyspnoe und keine thorakalen Schmerzen wurden explizit verneint – fehlt in der SOAP.",
+        "Vormedikation fehlt: Patientin nimmt nur Hustenbonbons und Hausmittel, keine spezifische Medikation."
+      ]
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [
+        "\"Reizhusten\" – die Patientin hat einen trockenen Reizhusten explizit verneint; Husten ist stark produktiv."
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "\"Allergische Reaktion auf ein bestimmtes Hausmittel\" – kein Hinweis auf eine Allergie im Transkript vorhanden."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "\"Antibiotika zur Behandlung einer möglichen bakteriellen Infektion\" – im Transkript nicht erwähnt.",
+        "\"Bronchodilatatormittel zur Linderung der Dyspnoe\" – im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "OriginalDC+Noise",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/OriginalDCWhiteNoise.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Schmerzen beim Atmen werden als vorhanden beschrieben, obwohl im Transkript explizit 'Keine thorakalen Schmerzen' notiert wurde",
+        "Messung des 'Schleimumfangs' – im Transkript wurde die Körpertemperatur gemessen, kein Schleimumfang"
+      ],
+      "auslassungen": [
+        "Keine Erwähnung der Medikamentenanamnese (keine spezifische Medikation, nur supportive Hausmittel)"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Medikamentenstatus fehlt (keine spezifische Formmedikation, nur Hausmittel)"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "'Andere Lungenkrankheiten' als mögliche Diagnose hinzugefügt – im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "'Überprüfung des Schleimumfangs' – im Transkript nicht als Maßnahme erwähnt",
+        "'Überwachung von Symptomen und Anzeichen einer Erkrankung' – generische Maßnahme, nicht im Transkript erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "OriginalDC",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/OriginalDC.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Belastungsdyspnoe beim Treppensteigen in den zweiten Stock (muss auf halbem Weg anhalten) wird ungenau als 'beim Aufstehen oder anstrengender körperlicher Aktivität' beschrieben",
+        "Keine Ruhedyspnoe nicht explizit erwähnt"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Belastungsdyspnoe-Beschreibung ungenau: 'beim Aufstehen' statt 'beim Treppensteigen in den zweiten Stock'",
+        "Auskultation der Lunge wurde begonnen, Befund fehlt (Transkript bricht ab)"
+      ]
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Antibiotika als Therapie wurden im Transkript nie erwähnt",
+        "Amoxicillin 500 mg viermal täglich ist vollständig halluziniert",
+        "Nachuntersuchung in zwei Wochen wurde im Transkript nicht besprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Meinungswechsel",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/MeinungswechselLapinMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Patientin berichtet, dass sie ständig aufstoßen muss – fehlt in der SOAP"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Magenspülung oder Endoskopie wird im Transkript nicht erwähnt",
+        "Medikamente (Antacida, Protonenhemmer) werden im Transkript nicht erwähnt",
+        "Empfehlung zur Ernährungsumstellung und kein Trinken vor dem Schlafen wird im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Gedankensprünge",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/GedankenprüngeLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Die SOAP stellt den Vergleich mit 2014 als ähnliche Schulterbeschwerden dar; tatsächlich war 2014 ein Kreuzbandriss am Knie – kein Schulterproblem."
+      ],
+      "auslassungen": [
+        "Arm blockiert beim Heben, kommt nicht über Kopfhöhe."
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Die Kreuzbandriss-Vorgeschichte wird als stützendes Argument für die Schulterdiagnose angeführt; das Transkript stellt keinen solchen diagnostischen Zusammenhang her."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Ultraschalluntersuchung der Schulter",
+        "Röntgenaufnahmen zum Frakturausschluss",
+        "Konservative Behandlung mit Schmerzlinderung und Physiotherapie"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Chaos",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/ChaosLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Schwindel wird als 'seit Samstagabend' angegeben, obwohl Patient sich im Transkript explizit auf Sonntagmorgen korrigiert",
+        "Geschichte der Bekannten mit Akustikusneurinom wird zu einem 'Karzinom-Imperz der in die Röhre eingeschlagen wurde' entstellt — inhaltlich unverständlich und faktisch falsch"
+      ],
+      "auslassungen": [
+        "Ohrenschmerzen rechts ('mein rechtes Ohr, das tut auch weh') werden nicht erwähnt",
+        "Ibuprofen-Einnahme heute Morgen (800 mg, zwei 400er) fehlt als Medikamentenanamnese"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Beobachtung des Arztes beim Eintreten ('wackelig auf den Beinen') fehlt"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "SOAP schreibt, Neuritis vestibularis werde 'durch eine Entzündung des Gleichgewichtsorgans erklärt' — im Transkript wird dieser Verdacht explizit verworfen, nicht bestätigt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Nachuntersuchung des rechten Ohrs wird empfohlen, obwohl im Transkript keine Wiedervorstellung vereinbart wird — Arzt impliziert, das Problem sei nach der Spülung erledigt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "Anamnesegespräch",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "S": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "gesamt_score": 0,
+    "urteil": "nicht_verwendbar",
+    "auto_skip": true,
+    "auto_skip_grund": "LLM-Fehlerrate 93% > 90%",
+    "llm_fehlerrate": 93.4
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "PWC",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/Anamnesegesrpäch PWC.mp3",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Erster Krankenhausbesuch (mit Röntgen) wird nicht erwähnt – Arzt fand damals nichts, was zur Verzögerung der Diagnose führte.",
+        "Am nächsten Morgen konnte die Patientin nicht aufstehen und das Knie war stark angeschwollen – relevanter Symptomverlauf fehlt.",
+        "Es ist der erste Physiotherapiebesuch der Patientin überhaupt (sie hatte noch keine Erfahrung)."
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Im Transkript wurde kein konkreter Behandlungsplan besprochen – es handelt sich ausschließlich um eine Anamnesephase; die genannten Maßnahmen sind sinnvolle Schlussfolgerungen, aber nicht explizit vereinbart."
+      ]
+    },
+    "gesamt_score": 6,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Chaos",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "ChaosLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Die Bezugsperson mit Akustikusneurinom wird als 'familiäre Erfahrung' bezeichnet, obwohl im Transkript nur 'Die' (unbekannte Person) erwähnt wird – keine Familienbeziehung angegeben."
+      ],
+      "auslassungen": [
+        "Schwindel begann laut Patientenkorrektur und Arztnotiz seit Sonntagmorgen, nicht seit Samstagabend (SOAP übernimmt die uncorrected erste Aussage)."
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Beobachtung und Rücksprache bei anhaltenden oder neuen Symptomen – im Transkript wird kein Folgetermin oder Wiedervorstellung erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Anamnesegespräch",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Chirurgische Vorgeschichte fehlt: Hallux-Valgus-OP am rechten Fuß vor zwei Jahren",
+        "Raucherstatus nicht dokumentiert: früher 6–7 Jahre geraucht, seit 8 Jahren aufgehört",
+        "Auslandsreise nach Singapur vor zwei Monaten (2 Wochen, geschäftlich) nicht erwähnt",
+        "Frühere gelegentliche Ritalin-Einnahme (2–3 Mal bei beruflichem Stress) fehlt"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Schmerzmanagement mit Analgetika nach Bedarf wurde vom Arzt im Gespräch nicht als Maßnahme genannt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Gedankensprünge",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "GedankenprüngeLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "SOAP nennt 'rechte Schulter', im Transkript wird die betroffene Seite nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "MRT der Schulter wird als Maßnahme genannt – im Transkript nicht erwähnt.",
+        "Schonung der Schulter und Schmerzmittelverordnung werden genannt – im Transkript nicht erwähnt.",
+        "Überweisung an einen Orthopäden wird genannt – im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Meinungswechsel",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "MeinungswechselLapinMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Medikamentöse Therapie mit Protonenpumpenhemmern wird empfohlen — im Transkript nicht erwähnt.",
+        "Überweisung zur gastroenterologischen Abklärung — im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 6,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "OriginalDC",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "OriginalDC.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf bakterielle Infektion sowie konkrete Differenzialdiagnosen Bronchitis/Pneumonie werden im Transkript nicht genannt — der Arzt erwähnt nur 'Verdacht auf rezidivierendes Fieber'."
+      ],
+      "auslassungen": [
+        "Der im Transkript explizit notierte 'Verdacht auf rezidivierendes Fieber' fehlt in der SOAP."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wird im Transkript nicht erwähnt.",
+        "Blutuntersuchung (CRP, Leukozyten) wird im Transkript nicht erwähnt.",
+        "Antibiotische Therapie wird im Transkript nicht erwähnt.",
+        "Schleimlösende Mittel und Antipyretika werden im Transkript nicht erwähnt.",
+        "Empfehlung zu Flüssigkeitszufuhr und Ruhe wird im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "OriginalDC+Noise",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "OriginalDCWhiteNoise.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Verdacht auf rezidivierendes Fieber (Arzt-Notation im Transkript) fehlt in O"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Bronchitis oder Pneumonie wird im Transkript nie genannt",
+        "Differentialdiagnose virale Infektion der oberen Atemwege mit sekundärer bakterieller Infektion erscheint nicht im Transkript"
+      ],
+      "auslassungen": [
+        "Arzt notiert 'Verdacht auf rezidivierendes Fieber' – dieser Verdacht fehlt in der Assessment"
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wird im Transkript nicht angeordnet oder erwähnt",
+        "Blutuntersuchung (CRP, Leukozytenzahl) wird im Transkript nicht erwähnt",
+        "Erwägung einer antibiotischen Therapie kommt im Transkript nicht vor",
+        "Nachkontrolle in einer Woche wird im Transkript nicht vereinbart"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "LapBeiArzt",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "OriginalLapBeiArzt.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf bakterielle Bronchitis oder Pneumonie wird im Transkript nicht geäußert.",
+        "Differenzialdiagnose virale Atemwegsinfektion kommt im Transkript nicht vor."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wird im Transkript nicht erwähnt.",
+        "Blutuntersuchung (CRP, Leukozyten) wird im Transkript nicht erwähnt.",
+        "Antibiotische Therapie wird im Transkript nicht erwähnt.",
+        "Empfehlung zu Flüssigkeitszufuhr und Ruhe wird im Transkript nicht ausgesprochen."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "LapInMitte",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "OriginalLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Bronchitis als Diagnose genannt – kommt im Transkript nicht vor.",
+        "Pneumonie als Differentialdiagnose genannt – kommt im Transkript nicht vor."
+      ],
+      "auslassungen": [
+        "Arzt notiert im Transkript 'Verdacht auf rezidivierendes Fieber' – fehlt im Assessment."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Blutuntersuchung (CRP, Leukozytenzahl) – im Transkript nicht erwähnt.",
+        "Sputumkultur – im Transkript nicht erwähnt.",
+        "Röntgen-Thorax – im Transkript nicht erwähnt.",
+        "Antibiotische Therapie bei Bestätigung einer bakteriellen Infektion – im Transkript nicht erwähnt.",
+        "Schleimlösende Mittel und Antipyretika – im Transkript nicht erwähnt.",
+        "Nachkontrolle in einer Woche – im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Selbstkorrekturen",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "SelbstkorrekturLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnose 'Verdacht auf Migräne oder Spannungskopfschmerz' wird im Transkript an keiner Stelle genannt oder angedeutet.",
+        "Aussage 'keine Anzeichen für sekundäre Kopfschmerzen aufgrund anderer neurologischer Symptome' — eine neurologische Beurteilung findet im Transkript nicht statt."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Neurologische Untersuchung zur Differenzierung von Migräne und Spannungskopfschmerz — im Transkript nicht erwähnt.",
+        "Empfehlung zur Vermeidung von Triggerfaktoren (Stress, Nahrungsmittel) — im Transkript nicht erwähnt.",
+        "Verschreibung eines Triptans zur Akutbehandlung — im Transkript nicht erwähnt.",
+        "Überweisung an einen Neurologen — im Transkript nicht erwähnt.",
+        "Aufklärung über Nebenwirkungen der Medikation — im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Speechmatics+GPT4o",
+    "scenario": "Unterbrechungen",
+    "stt_model": "Speechmatics (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "UnterbrechungLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "SOAP nennt 'ohne Ausstrahlung in die Leiste' — Patientin hat Leistenausstrahlung nicht explizit verneint, sondern nur Rückenausstrahlung ausgeschlossen"
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Differentialdiagnose 'Gastroenteritis' wird genannt, obwohl dieser Begriff im Transkript nicht vorkommt",
+        "Differentialdiagnose 'Magen-Darm-Infektion' wird genannt, obwohl dieser Begriff im Transkript nicht vorkommt",
+        "'Gastrointestinale Infektion' als primäre Einschätzung geht über das Transkript hinaus — der Arzt äußerte nur den Verdacht auf unzureichend gegartes Hähnchen als Ursache"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Flüssigkeitszufuhr zur Dehydrierungsprävention wurde im Gespräch nicht besprochen",
+        "Vorstellung in der Notaufnahme bei Verschlechterung wurde nicht erwähnt",
+        "Wiedervorstellung mit weiterer Diagnostik (Blutuntersuchung, Stuhlprobe) nach 24 Stunden wurde nicht besprochen",
+        "Ernährungsberatung mit Vermeidung schwer verdaulicher Lebensmittel wurde nicht erwähnt",
+        "Weitere Beobachtung der Symptome und Temperatur wurde im Transkript nicht explizit als Plan genannt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "PWC",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/Anamnesegesrpäch PWC.mp3",
+    "llm_fehlerrate": 0.3,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Erster Krankenhausbesuch mit Röntgen war negativ (Arzt fand nichts) – erst beim zweiten Besuch am nächsten Tag wurde der vordere Kreuzbandriss korrekt diagnostiziert.",
+        "Stationäre physiotherapeutische Behandlung im Krankenhaus (Krückengang, Abrollen des Fußes, Treppensteigen üben) wird nicht erwähnt.",
+        "Volleyball-Vorgeschichte (seit 4 Jahren, zweimal wöchentlich im Verein) fehlt als Kontext für das Therapieziel."
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Ausgeprägter Muskelabbau durch die Liegezeit im Krankenhaus wird nicht erwähnt.",
+        "Patientin verlässt die Wohnung kaum – minimale Alltagsmobilität außerhalb der Wohnung nicht dokumentiert."
+      ]
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Im Transkript wurde kein konkreter Therapieplan besprochen – die SOAP formuliert einen generischen Plan, der zwar plausibel ist, aber keine im Gespräch vereinbarten Maßnahmen wiedergibt."
+      ]
+    },
+    "gesamt_score": 6,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Anamnesegespräch",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "S": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "gesamt_score": 0,
+    "urteil": "nicht_verwendbar",
+    "auto_skip": true,
+    "auto_skip_grund": "LLM-Fehlerrate 93% > 90%",
+    "llm_fehlerrate": 93.3
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "PWC",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/Anamnesegesrpäch PWC.mp3",
+    "S": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "gesamt_score": 0,
+    "urteil": "nicht_verwendbar",
+    "auto_skip": true,
+    "auto_skip_grund": "SOAP ist leer"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Chaos",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/ChaosLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Angst vor Tumor auf 'familiäre Erfahrungen' zurückgeführt – im Transkript war es eine Bekannte ('die Frau von der Kopfbewegung'), kein Familienmitglied."
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "'Beobachtung der Symptome nach der Ohrenspülung' wird als Maßnahme genannt, ist im Transkript jedoch nicht erwähnt – der Arzt sagt lediglich, der Spuk sei dann vorbei."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Anamnesegespräch",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "SOAP dokumentiert 'kein Drogenkonsum', obwohl Patientin explizit gelegentliche Ritalin-Einnahme (2–3 Mal) eingeräumt hat"
+      ],
+      "auslassungen": [
+        "Familienanamnese fehlt vollständig (Großvater: Leberzirrhose verstorben; Großmutter: Brustkrebs; Schwester: Asthma und Neurodermitis)",
+        "Reiseanamnese fehlt (Singapur, geschäftlich, vor 2 Monaten, 2 Wochen Dauer)",
+        "Raucheranamnese fehlt (6–7 Jahre geraucht, vor 8 Jahren aufgehört)",
+        "Alkoholkonsum stark untertrieben: 'gelegentlich' statt 'fast jeden Abend ein Glas Wein plus 2–3 Gläser am Wochenende'"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Schmerzmanagement mit Analgetika wurde im Transkript vom Arzt nicht angesprochen oder angeordnet"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Gedankensprünge",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/GedankenprüngeLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Schulter und Arm werden als 'rechts' bezeichnet — welche Seite betroffen ist, wird im Transkript nicht genannt"
+      ],
+      "auslassungen": [
+        "Zeitangabe 'vorgestern' als Beginn der Beschwerden fehlt"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [
+        "Schulter und Arm werden als 'rechts' bezeichnet — welche Seite betroffen ist, wird im Transkript nicht genannt"
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Ultraschalluntersuchung der Schulter — im Transkript nicht erwähnt",
+        "MRT der Schulter — im Transkript nicht erwähnt",
+        "NSAR (Ibuprofen 400 mg, 3x täglich) — im Transkript nicht erwähnt",
+        "Schonung und Vermeidung belastender Aktivitäten — im Transkript nicht erwähnt",
+        "Physiotherapie — im Transkript nicht erwähnt",
+        "Nachkontrolle in 1 Woche — im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Meinungswechsel",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/MeinungswechselLapinMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Empfehlung zur Anpassung der Ernährung und Vermeidung säurehaltiger Lebensmittel wurde im Transkript nicht ausgesprochen.",
+        "Beratung zur Vermeidung von Liegen nach dem Essen wurde im Transkript nicht erwähnt.",
+        "Erwägung einer medikamentösen Therapie mit Protonenpumpenhemmern (PPI) kommt im Transkript nicht vor.",
+        "Empfehlung zur Beobachtung der Symptome und Rücksprache bei Verschlechterung wurde im Transkript nicht genannt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 6,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "OriginalDC",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/OriginalDC.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Keine Ruheatemnot (\"keine Rohdyspnoe\") wurde vom Arzt explizit notiert, fehlt in der SOAP"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Bronchitis wurde im Transkript nicht geäußert",
+        "Verdacht auf Pneumonie wurde im Transkript nicht geäußert"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wurde nicht erwähnt",
+        "Blutuntersuchung (CRP, Leukozyten) wurde nicht erwähnt",
+        "Antibiotische Therapie wurde nicht erwähnt",
+        "Schleimlösende Mittel und Antipyretika wurden nicht erwähnt",
+        "Nachkontrolle in einer Woche wurde nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "OriginalDC+Noise",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/OriginalDCWhiteNoise.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Differenzialdiagnose Bronchitis wird genannt, obwohl im Transkript nicht erwähnt.",
+        "Differenzialdiagnose Pneumonie wird genannt, obwohl im Transkript nicht erwähnt."
+      ],
+      "auslassungen": [
+        "Arzt-Notiz erwähnt explizit 'Verdacht auf ein rezidivierendes Fieber', fehlt in der SOAP."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wird als Maßnahme genannt, findet sich nicht im Transkript.",
+        "Einleitung einer antibiotischen Therapie wird erwogen, findet sich nicht im Transkript.",
+        "Nachkontrolle in einer Woche wird empfohlen, findet sich nicht im Transkript."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "LapBeiArzt",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/OriginalLapBeiArzt.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf bakterielle Infektion der unteren Atemwege wird im Transkript nicht genannt.",
+        "Differenzialdiagnose virale Infektion mit sekundärer bakterieller Superinfektion kommt im Transkript nicht vor.",
+        "Verdacht auf Bronchitis oder Pneumonie wird im Transkript nicht geäußert."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgen-Thorax wird im Transkript nicht erwähnt.",
+        "Erwägung einer antibiotischen Therapie kommt im Transkript nicht vor.",
+        "Empfehlung zur Fortsetzung von Kamillentee und Hustenbonbons wird vom Arzt nicht ausgesprochen (nur vom Patienten erwähnt).",
+        "Reevaluation nach 3–5 Tagen wird im Transkript nicht genannt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "LapInMitte",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/OriginalLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Bronchitis oder Pneumonie wird im Transkript nicht als Verdachtsdiagnose genannt.",
+        "Differenzialdiagnose 'Virale Infektion der oberen Atemwege mit sekundärer bakterieller Superinfektion' kommt im Transkript nicht vor."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme des Thorax wird im Transkript nicht erwähnt.",
+        "Blutuntersuchung mit CRP und Blutbild wird im Transkript nicht erwähnt.",
+        "Antibiotische Therapie bei bakterieller Infektion wird im Transkript nicht erwähnt.",
+        "Schleimlösende Mittel und Antipyretika werden im Transkript nicht erwähnt.",
+        "Beratung über Flüssigkeitszufuhr und Ruhe wird im Transkript nicht erwähnt.",
+        "Follow-up-Termin in einer Woche wird im Transkript nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Selbstkorrekturen",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/SelbstkorrekturLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Ibuprofen 600 mg wird als 'leichte Besserung' dokumentiert, obwohl der Arzt die Wirkung im Transkript nur als 'fraglich' notiert und der Patient keine Besserung bestätigt hat"
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "'Migräne mit Aura' – Aura-Symptome (z.B. Sehstörungen) wurden im Transkript an keiner Stelle erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Verschreibung eines Triptans – im Gespräch nicht besprochen",
+        "Kopfschmerztagebuch – im Gespräch nicht erwähnt",
+        "Nachkontrolle in einer Woche – im Gespräch nicht vereinbart",
+        "Empfehlung zur Triggervermeidung (grelles Licht) – im Gespräch nicht besprochen",
+        "Neurologische Untersuchung – im Gespräch nicht angesprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "AssemblyAI+GPT4o",
+    "scenario": "Unterbrechungen",
+    "stt_model": "AssemblyAI (Cloud)",
+    "llm_model": "OpenAI GPT-4o",
+    "audio_file": "audio/UnterbrechungLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Patientin musste wegen der Krämpfe sofort zur Toilette – möglicher Hinweis auf Diarrhö/Stuhldrang fehlt"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Salmonellen als spezifischer Erreger werden im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Körperliche Untersuchung des Abdomens – im Transkript nicht erwähnt",
+        "Labordiagnostik (Blutbild, CRP, Elektrolyte, Stuhlprobe) – im Transkript nicht erwähnt",
+        "Antiemetika und Flüssigkeitszufuhr – im Transkript nicht erwähnt",
+        "Stationäre Aufnahme bei Verschlechterung – im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+llama3.2",
+    "scenario": "PWC",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "llama3.2",
+    "audio_file": "audio/Anamnesegesrpäch PWC.mp3",
+    "llm_fehlerrate": 20.4,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Zwei Krankenhausbesuche werden nicht differenziert: erster Besuch ohne Befund (Röntgen), zweiter Besuch am nächsten Morgen mit Schwellung und Diagnose.",
+        "Knie war am Morgen nach dem Unfall angeschwollen.",
+        "Erste Maßnahmen direkt nach dem Unfall (Kühlen, Hochlagern) fehlen.",
+        "Volleyball seit 4 Jahren, zweimal pro Woche im Verein – relevant für Therapieziel.",
+        "Therapieziel der Patientin (zuerst normal gehen, dann wieder Volleyball spielen) fehlt.",
+        "Es war der erste Physiotherapiebesuch der Patientin überhaupt."
+      ]
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [
+        "Frau Grasbeutner 'lebt in einem Haus' – im Transkript explizit als Wohnung im zweiten Stock angegeben.",
+        "Beim Hometrainer 'keine spezifischen Übungen durchgeführt' – sie hat damit Beugen und Strecken geübt."
+      ],
+      "auslassungen": [
+        "Physiotherapie im Krankenhaus (einmal täglich, Krückengang, Fußabrollen, Treppensteigen, Beugen üben) fehlt.",
+        "MRT-Befund zur Diagnosesicherung wird nicht erwähnt.",
+        "Muskelabbau durch einwöchige Immobilisierung fehlt.",
+        "Schmerzmittel zuhause mitgegeben, aber nicht gebraucht – SOAP sagt fälschlicherweise sie habe sie 'benötigt'."
+      ]
+    },
+    "A": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Status ist postoperativ (ca. 6 Wochen nach Op.) – die Diagnose ist gesichert, nicht nur 'wahrscheinlich'.",
+        "Muskelatrophie durch Immobilisierung als relevanter Befund fehlt.",
+        "Aktueller Funktionsstatus (Krückengang bereits gut integriert, aber Treppensteigen noch eingeschränkt) zu knapp dargestellt."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Empfehlung für Heimphysiotherapie ('Physiotherapeut bei Hause') – wurde im Transkript nicht erwähnt.",
+        "'Übungen zur Stärkung des Kniegelenks' als konkreter Planpunkt – im Transkript wird kein Therapieplan besprochen, es handelt sich nur um die Erstanamnese."
+      ],
+      "auslassungen": [
+        "Therapieziel der Patientin (Wiederaufnahme des Volleyballsports) ist nicht im Plan aufgegriffen."
+      ]
+    },
+    "gesamt_score": 2,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "PWC",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "audio/Anamnesegesrpäch PWC.mp3",
+    "llm_fehlerrate": 33.5,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "SOAP behauptet die Diagnose wurde 'nach einer Woche im Krankenhaus' gestellt – im Transkript wurde sie am nächsten Morgen beim zweiten Krankenhausbesuch gestellt; die Woche im KH war post-operativ.",
+        "SOAP sagt sie konnte direkt nach der Verletzung nicht aufstehen – im Transkript war das Aufsteh-Problem erst am nächsten Morgen; direkt nach der Verletzung konnte sie nur das Knie nicht ausstrecken."
+      ],
+      "auslassungen": [
+        "Erster Krankenhausbesuch am Verletzungstag: Röntgen gemacht, Arzt fand nichts Auffälliges.",
+        "Kühlung und Hochlagerung unmittelbar nach der Verletzung.",
+        "Knie am nächsten Morgen stark angeschwollen.",
+        "Es ist ihr erster Physiotherapiebesuch überhaupt."
+      ]
+    },
+    "O": {
+      "score": 0,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Volleyballspielerin seit 4 Jahren, Training 2x pro Woche.",
+        "Wohnsituation: 2. Stock, ca. 20–30 Treppen (therapeutisch relevant).",
+        "Muskelabbau durch Immobilisation während des Krankenhausaufenthalts.",
+        "Physiotherapeutische Behandlung bereits im Krankenhaus (einmal täglich).",
+        "Schmerztabletten wurden eingenommen, werden zum Gesprächszeitpunkt aber nicht mehr genommen."
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Wiederholt fälschlicherweise, die Diagnose sei 'nach einer Woche im Krankenhaus' gestellt worden – widerspricht dem Transkript direkt."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Treppensteigen (2. Stock, 20–30 Stufen) als konkretes kurzfristiges Rehabilitationsziel wird nicht genannt."
+      ]
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Chaos",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "ChaosLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Schmerzen im 'linken Ohr' — Transkript: Patient korrigiert sich explizit auf rechtes Ohr ('mein rechtes Ohr, das tut auch weh')",
+        "'aufgrund einer früheren Operation an der Akustikusnerven' — nicht der Patient, sondern eine andere Person hatte das Akustikusneurinom und die OP"
+      ],
+      "auslassungen": [
+        "Zeitangabe falsch: Sonntag morgen (nicht Sonntagabend)"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "'Neuritis vestibularis' als Diagnosebestandteil — Arzt hat diesen Verdacht explizit revidiert ('Verdacht auf Neuritis vestibularis revidiert'); Diagnose ist Zerumen-Pfropf"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Gedankensprünge",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "GedankenprüngeLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Die SOAP beschreibt 2014 als 'ähnliche Erkrankung nach einem Skiunfall', im Transkript war das 2014er Ereignis jedoch ein Kreuzbandriss am Knie – keine Schultererkrankung"
+      ],
+      "auslassungen": [
+        "Patient kann den Arm nicht über Kopfhöhe heben ('blockiert richtig')"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "MRI-Untersuchung im Transkript nicht erwähnt",
+        "Physiotherapie im Transkript nicht erwähnt",
+        "Mögliche operative Behandlung im Transkript nicht erwähnt",
+        "Empfehlung, das Tennisspielen einzustellen, im Transkript nicht erwähnt",
+        "Regelmäßige Überwachung und Nachsorge im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Meinungswechsel",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "MeinungswechselLapinMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Spezifischer Auslöser 'Tomatensauce gestern Abend' wird nicht erwähnt"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Empfehlung zur Endoskopie – im Transkript nicht erwähnt",
+        "Medikamentöse Behandlung mit Protonenpumpenhemmern – im Transkript nicht erwähnt",
+        "Lebensstiländerungen (Alkohol, Koffein, Gewicht) – im Transkript nicht erwähnt",
+        "Ausführliche Anamnese als geplante Maßnahme – im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "OriginalDC",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "OriginalDC.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf Pneumonie wird explizit genannt, obwohl der Arzt im Transkript keine Pneumonie-Diagnose äußert.",
+        "Einschätzung 'bakterielle oder viral-bakterielle Infektion' kommt im Transkript nicht vor.",
+        "Aussage, dass genauere Diagnose durch weitere Untersuchungen gestellt werden kann, wird im Transkript nicht besprochen."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme der Lunge als geplante Maßnahme wird im Transkript nicht erwähnt.",
+        "Bluttests werden im Transkript nicht besprochen.",
+        "Sputumkultur wird im Transkript nicht erwähnt.",
+        "Beginn einer Antibiotika- oder antiviralen Therapie wird im Transkript nicht angesprochen.",
+        "Empfehlung eines Hustenstillstandsmedikaments kommt im Transkript nicht vor.",
+        "Bewegungsempfehlungen und Schlafhygiene zur Vermeidung von Belastungsdyspnoe werden im Transkript nicht besprochen."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "OriginalDC+Noise",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "OriginalDCWhiteNoise.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Medikamenten-Anamnese fehlt: keine spezifische Medikation, lediglich Hausmittel",
+        "Keine Ruhedyspnö nicht erwähnt"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Keine Ruhedyspnö fehlt als negativer Befund"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Chronische Bronchitis als Differenzialdiagnose — im Transkript nicht erwähnt",
+        "Infektion als Ursache der Temperaturen — wird im Transkript nicht als Diagnose genannt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Weitere Laborwerte — im Transkript nicht besprochen",
+        "Hustenstillende Medikamente als Therapiebeginn — nicht erwähnt",
+        "Empfehlung eines Folge-Arzttermins — nicht im Transkript",
+        "Ratschlag zum Vermeiden von Hausmitteln — im Transkript nicht geäußert"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 2,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "LapBeiArzt",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "OriginalLapBeiArzt.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Die begonnene Auskultation wird nicht dokumentiert; die O-Sektion wiederholt nur subjektive Patientenangaben anstatt objektiver Arztbefunde"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnose 'möglicherweise bakterielle Pneumonie' wurde vom Arzt im Transkript nicht gestellt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme der Lunge wurde im Transkript nicht angeordnet",
+        "Bakteriologische Sputumuntersuchung wurde nicht erwähnt",
+        "Antibiotikagabe wurde nicht erwähnt",
+        "Fortgesetzte Überwachung von Temperatur und Dyspnoe wurde nicht besprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "LapInMitte",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "OriginalLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Vormedikation fehlt: Patientin nimmt Hustenbonbons und Kamillentee — nicht in S erwähnt"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Die Auskultation habe Befunde geliefert, die auf eine Erkrankung des unteren Atemwegs hinweisen — im Transkript wurde die Auskultation nur begonnen, kein Befund ist dokumentiert"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgenaufnahme der Lunge angeordnet — im Transkript nicht erwähnt",
+        "Antibiotikatherapie in Betracht gezogen — im Transkript nicht erwähnt",
+        "Nachsorgeuntersuchung in 3–5 Tagen — im Transkript nicht erwähnt",
+        "Ärztliche Empfehlung, Hausmittel weiterzunehmen und sich hinzulegen — im Transkript nicht als ärztliche Anweisung ausgesprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Selbstkorrekturen",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "SelbstkorrekturLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Extreme Lichtempfindlichkeit des Patienten fehlt komplett",
+        "Schmerz zieht vom Nacken hoch – SOAP beschreibt fälschlich eine Ausbreitung von der rechten Schläfe aus",
+        "Explizite Verneinung von Übelkeit (kein Erbrechen) fehlt"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Halluzinierte Ursache: 'Entzündung oder Stress' – im Transkript nicht erwähnt",
+        "Halluzinierte Diagnose: 'Migräneanfall' – Arzt stellt im Transkript keine Diagnose",
+        "Fehlerhafte Begründung: 'Schmerzen breiten sich von einer Seite zur anderen aus' – Patient korrigierte sich selbst, der Schmerz ist einseitig rechts"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Halluzinierte Maßnahme: Blutuntersuchung auf Entzündungszeichen – im Transkript nicht erwähnt",
+        "Halluzinierte Maßnahme: Patient soll sich am nächsten Tag melden – kein solcher Plan im Transkript",
+        "Halluzinierte Empfehlung: andere/weitere Schmerzmittel einnehmen – nicht im Transkript besprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+Sauerkraut",
+    "scenario": "Unterbrechungen",
+    "stt_model": "Whisper Large-v3-turbo (Lokal)",
+    "llm_model": "Llama-3.1-SauerkrautLM-8b-Instruct",
+    "audio_file": "UnterbrechungLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Schmerz strahlt in den Leistenbereich aus — Patientin sagte nur 'überall', bestätigte keine Leistenausstrahlung explizit"
+      ],
+      "auslassungen": [
+        "Patientin musste um 3 Uhr nachts zur Toilette rennen (mögliche Durchfallsymptomatik)",
+        "Nahrungsanamnese fehlt: Salat mittags, gegrilltes Hähnchen abends, möglicherweise nicht durchgegart",
+        "Erbrechen zweimal — SOAP erwähnt nur Erbrechen, nicht die Häufigkeit"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Reizdarmschleimhautentzündung als mögliche Diagnose — kommt im Transkript nicht vor",
+        "Magengeschwüre als mögliche Diagnose — kommt im Transkript nicht vor"
+      ],
+      "auslassungen": [
+        "Hinweis auf möglicherweise nicht durchgegarten Hähnchen als naheliegender Auslöser (Lebensmittelvergiftung) fehlt komplett"
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Bluttests — im Transkript nicht erwähnt",
+        "Ultraschalluntersuchung — im Transkript nicht erwähnt",
+        "Antibiotika-Behandlung — im Transkript nicht erwähnt",
+        "Hydratationsempfehlung — im Transkript nicht erwähnt",
+        "Ernährungsumstellung — im Transkript nicht erwähnt",
+        "Stationäre Behandlung — im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Chaos",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/ChaosLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "SOAP schreibt dem Patienten selbst eine frühere Akustikusneurinom-Operation zu; im Transkript bezieht sich 'Die' auf eine dritte Person (Bekannte/Verwandte), nicht auf den Patienten"
+      ],
+      "auslassungen": [
+        "Patient erwähnt zwei kleine Kinder zu Hause als emotionalen Kontext für seine Karzinophobie – in der SOAP nicht dokumentiert"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 1,
+      "halluzinationen": [
+        "'Obstruktion des Mittelohrs' kommt im Transkript nicht vor; der Cerumenpfropf sitzt im Außengehörgang, nicht im Mittelohr"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "'Bei anhaltenden oder sich verschlimmernden Symptomen ist eine Nachkontrolle erforderlich' wird im Transkript an keiner Stelle erwähnt – halluzinierte Maßnahme"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Anamnesegespräch",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/Das Anamnesegespräch Teil 1 medizinische Fachsprachprüfung Fall Unfall - ärztesprech (128k).wav",
+    "llm_fehlerrate": 78.9,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Ernährung nicht erwähnt (Patient versucht ausgewogen zu essen, isst manchmal etwas zu viel)",
+        "Familienstand fehlt (verheiratet, zwei Kinder)",
+        "Schlafdauer (7–8 Stunden) nicht angegeben, nur 'gut' dokumentiert"
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [],
+      "auslassungen": [
+        "Schmerzlokalisation nicht dokumentiert – Patient zeigte dem Arzt die konkrete Schmerzstelle am Knie"
+      ]
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnose 'Kniearthrose' wird im Transkript nicht gestellt – der Arzt nennt keine Diagnose",
+        "Differenzialdiagnosen (entzündliche Arthritis, muskuloskelettale Überlastung) sind im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Bildgebende Diagnostik (Röntgenaufnahme) wird im Transkript nicht angeordnet",
+        "Physiotherapie wird im Transkript nicht empfohlen",
+        "Medikamentöse Therapieanpassung oder Schmerzmedikation wird nicht besprochen",
+        "Gewichtsmanagement und Belastungsanpassung werden im Transkript nicht thematisiert",
+        "Nachkontrolltermin wird im Transkript nicht vereinbart"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 2,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Gedankensprünge",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/GedankenprüngeLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 0,
+      "halluzinationen": [
+        "Patient habe 2014 'ähnliche Schulterprobleme, die chirurgisch behandelt wurden' — im Transkript verneint der Patient Schulterprobleme 2014 explizit ('Nein, nein') und beschreibt stattdessen einen Kreuzbandriss am Knie."
+      ],
+      "auslassungen": [
+        "Das laute Knacken bei Schulter beim Aufschlag wird nicht erwähnt."
+      ]
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [
+        "'Schmerz bei passiven und aktiven Bewegungen' — im Transkript wird nur eine aktive Bewegungseinschränkung (Armbeben) besprochen; passive Bewegungstests wurden nicht durchgeführt oder erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Differentialdiagnosen Impingement-Syndrom und Tendinitis werden genannt, obwohl diese im Transkript keinerlei Erwähnung finden."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Bildgebende Diagnostik (Ultraschall/MRT) wurde im Transkript nicht besprochen.",
+        "Schmerzmanagement und lokale Kühlung wurden nicht erwähnt.",
+        "Physiotherapeutische Nachsorge wurde nicht erwähnt.",
+        "Aufklärung über Belastungsgrenzen wurde nicht erwähnt."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 1,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Meinungswechsel",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/MeinungswechselLapinMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Beginn einer Protonenpumpenhemmer-Therapie (PPI) — im Transkript nicht erwähnt",
+        "Ernährungsberatung zur Identifizierung von Reflux-Auslösern — im Transkript nicht erwähnt",
+        "Empfehlung zur Vermeidung von flachem Liegen nach dem Essen — im Transkript nicht erwähnt",
+        "Keine weiteren kardialen Untersuchungen indiziert — im Transkript nicht explizit als Maßnahme formuliert"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 6,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "OriginalDC",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/OriginalDC.m4a",
+    "llm_fehlerrate": 0.4,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnose 'Bronchitis/Pneumonie' wird im Transkript nicht genannt oder angedeutet"
+      ],
+      "auslassungen": [
+        "Der Arzt notiert im Transkript 'Verdacht auf rezidivierendes Fieber' als Arbeitsdiagnose — fehlt in der SOAP"
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgen-Thorax zur Pneumonieabklärung wurde im Transkript nicht erwähnt",
+        "Symptomatische Behandlung von Husten und Dyspnoe wurde nicht besprochen",
+        "Medikationsanpassung wurde nicht thematisiert",
+        "Sputumkultur zur Abklärung bakterieller Infektion wurde nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "OriginalDC+Noise",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/OriginalDCWhiteNoise.m4a",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Sputum wird als 'verfärbt' beschrieben – das Transkript nennt 'kudelnd', was keine Farbangabe ist"
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [
+        "'Patientin ist bei Bewusstsein und kooperativ' – im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "'Akute Infektion der Atemwege' als Diagnose – im Transkript nicht genannt; dort wird nur Verdacht auf präzidivierende Tuberkulose dokumentiert"
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Weiterführende Diagnostik (Lungenfunktionsprüfung, Röntgen-Thorax, Sputumkultur) – im Transkript nicht besprochen",
+        "Symptomatische Behandlung von Dyspnö und Husten – im Transkript nicht besprochen",
+        "Engmaschige Überwachung und Follow-up – im Transkript nicht besprochen"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 2,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "LapBeiArzt",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/OriginalLapBeiArzt.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Tee als getrunkenes Mittel explizit genannt, im Transkript steht nur sinngemäß 'viel trinken/Flüssigkeit' (STT-Fehler: 'vielfamilien')."
+      ],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf Bronchitis/Pneumonie diagnostiziert, obwohl im Transkript ausschließlich 'Verdacht auf rezidivierendes Fieber' vom Arzt notiert wurde."
+      ],
+      "auslassungen": [
+        "'Verdacht auf rezidivierendes Fieber' aus dem Transkript fehlt vollständig in der Assessment-Sektion."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgen-Thorax und Sputumkultur empfohlen, obwohl im Transkript keinerlei Diagnostikplan besprochen wurde.",
+        "Antibiotische Therapie erwähnt, findet im Transkript keine Grundlage.",
+        "Empfehlung zur Rückkonsultation bei Verschlechterung ist nicht im Transkript enthalten."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "LapInMitte",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/OriginalLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Verdacht auf akute Bronchitis oder Pneumonie — im Transkript nicht genannt.",
+        "Einordnung als bakterielle oder virale Atemwegsinfektion — im Transkript nicht erwähnt."
+      ],
+      "auslassungen": [
+        "Arzt-Notiz 'Verdacht auf rezidivierendes Fieber' aus dem Transkript fehlt."
+      ]
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Röntgen-Thorax zur Diagnostik — im Transkript nicht erwähnt.",
+        "Sputumkultur zur Erregeridentifikation — im Transkript nicht erwähnt.",
+        "Antibiotische Therapie als mögliche Maßnahme — im Transkript nicht erwähnt.",
+        "Empfehlung ausreichender Flüssigkeitszufuhr als Arztanweisung — im Transkript kein Hinweis darauf als ärztliche Empfehlung."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 4,
+    "urteil": "ueberarbeitung_noetig"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Selbstkorrekturen",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/SelbstkorrekturLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "O": {
+      "score": 1,
+      "halluzinationen": [
+        "'Klinische Untersuchung zeigt ausgeprägte Photophobie' — die Photophobie ist ein selbst berichtetes Symptom des Patienten, keine Untersuchungsfeststellung; eine klinische Untersuchung ist im Transkript nicht dokumentiert."
+      ],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 0,
+      "halluzinationen": [
+        "Diagnosevorschlag 'Migräne' ist im Transkript nicht genannt.",
+        "Diagnosevorschlag 'sekundärer Spannungskopfschmerz' ist im Transkript nicht genannt."
+      ],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "Empfehlung abortiver Medikamente (z.B. Triptane) findet sich nicht im Transkript.",
+        "Empfehlung zur Trigger-Vermeidung findet sich nicht im Transkript.",
+        "Empfehlung zur Wiedervorstellung bei Verschlechterung findet sich nicht im Transkript.",
+        "Aufklärung über Photophobie und Schmerzanamnese findet sich nicht im Transkript."
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 3,
+    "urteil": "nicht_verwendbar"
+  },
+  {
+    "model": "Whisper+gemma4",
+    "scenario": "Unterbrechungen",
+    "stt_model": "Whisper large-v3-turbo (Lokal)",
+    "llm_model": "gemma4:e4b",
+    "audio_file": "audio/UnterbrechungLapInMitte.wav",
+    "llm_fehlerrate": 0.0,
+    "auto_skip": false,
+    "S": {
+      "score": 1,
+      "halluzinationen": [
+        "Durchfall wird explizit genannt, obwohl im Transkript nur 'auf die Toilette rennen musste' steht – Diarrhö ist nicht ausdrücklich bestätigt"
+      ],
+      "auslassungen": [
+        "Patientin sagte 'es tut einfach überall weh', was die lokale Eingrenzung 'primär über den Bauchnabel' etwas relativiert"
+      ]
+    },
+    "O": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "A": {
+      "score": 2,
+      "halluzinationen": [],
+      "auslassungen": []
+    },
+    "P": {
+      "score": 0,
+      "halluzinationen": [
+        "ORS (orale Rehydrationslösung) wird empfohlen – im Transkript nicht erwähnt",
+        "Schonkost (Zwieback, Reis) wird empfohlen – im Transkript nicht erwähnt",
+        "Stuhlprobe als diagnostische Maßnahme genannt – im Transkript nicht erwähnt",
+        "Follow-up-Kriterien (anhaltendes Fieber, Dehydratation) formuliert – im Transkript nicht erwähnt"
+      ],
+      "auslassungen": []
+    },
+    "gesamt_score": 5,
+    "urteil": "ueberarbeitung_noetig"
+  }
+]

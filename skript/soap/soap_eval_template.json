@@ -1,0 +1,23 @@
+{
+  "S": {
+    "score": 2,
+    "halluzinationen": [],
+    "auslassungen": []
+  },
+  "O": {
+    "score": 1,
+    "halluzinationen": [],
+    "auslassungen": ["Fieberwert 38,8°C wurde nicht erwähnt"]
+  },
+  "A": {
+    "score": 0,
+    "halluzinationen": ["Verdacht auf Pneumonie wurde nicht im Transkript genannt"],
+    "auslassungen": []
+  },
+  "P": {
+    "score": 2,
+    "halluzinationen": [],
+    "auslassungen": []
+  },
+  "gesamt_score": 5
+}

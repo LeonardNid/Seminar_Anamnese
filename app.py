@@ -20,6 +20,9 @@ SAUERKRAUT_API_KEY = os.getenv("SAUERKRAUT_API_KEY", "dummy-key")
 SAUERKRAUT_BASE_URL = os.getenv("SAUERKRAUT_BASE_URL")
 SPEECHMATICS_API_KEY = os.getenv("SPEECHMATICS_API_KEY")
 SPEECHMATICS_URL = os.getenv("SPEECHMATICS_URL", "https://asr.api.speechmatics.com/v2")
+ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
+ASSEMBLYAI_BASE_URL = "https://api.assemblyai.com/v2"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4:e4b")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 st.set_page_config(page_title="AI-Anamnesis PoC", page_icon="🩺", layout="wide")
@@ -146,6 +149,64 @@ def transcribe_audio_speechmatics(audio_bytes, language="de"):
     except Exception as e:
         return f"Fehler bei der Transkription: {str(e)}"
 
+def transcribe_audio_assemblyai(audio_bytes, language="de"):
+    if not ASSEMBLYAI_API_KEY:
+        return "Fehler: ASSEMBLYAI_API_KEY nicht gefunden."
+
+    headers = {"Authorization": ASSEMBLYAI_API_KEY}
+    try:
+        # 1) Upload
+        with st.spinner("Audio wird hochgeladen (AssemblyAI)..."):
+            up = requests.post(
+                f"{ASSEMBLYAI_BASE_URL}/upload",
+                headers=headers,
+                data=audio_bytes,
+            )
+            up.raise_for_status()
+            audio_url = up.json()["upload_url"]
+
+        # 2) Submit
+        body = {
+            "audio_url": audio_url,
+            "speech_models": ["universal-3-pro"],
+            "speaker_labels": True,
+        }
+        if language in ("de", "en"):
+            body["language_code"] = language
+
+        sub = requests.post(
+            f"{ASSEMBLYAI_BASE_URL}/transcript",
+            headers={**headers, "Content-Type": "application/json"},
+            json=body,
+        )
+        if not sub.ok:
+            return f"Fehler beim Einreichen des Jobs: {sub.status_code} — {sub.text}"
+        job_id = sub.json()["id"]
+
+        # 3) Poll
+        poll_url = f"{ASSEMBLYAI_BASE_URL}/transcript/{job_id}"
+        with st.spinner("Transkription läuft (AssemblyAI)..."):
+            while True:
+                time.sleep(5)
+                pr = requests.get(poll_url, headers=headers)
+                pr.raise_for_status()
+                data = pr.json()
+                status = data["status"]
+                if status == "completed":
+                    break
+                elif status == "error":
+                    return f"Fehler: {data.get('error', 'unbekannt')}"
+
+        # 4) Format utterances
+        utterances = data.get("utterances") or []
+        if not utterances:
+            return data.get("text") or "Fehler: Kein Text transkribiert"
+        lines = [f"Speaker {u['speaker']}: {u['text']}" for u in utterances]
+        return "\n".join(lines)
+
+    except Exception as e:
+        return f"Fehler bei der Transkription: {str(e)}"
+
 @st.cache_resource
 def load_whisper_model():
     return WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
@@ -209,9 +270,18 @@ def transcribe_audio_whisper(audio_bytes, lang_code="de"):
     except Exception as e:
         return f"Fehler bei der Whisper-Transkription: {str(e)}"
 
+def _resolve_llm(llm_model):
+    if llm_model == "OpenAI GPT-4o":
+        return client, "gpt-4o"
+    elif llm_model == "llama3.2":
+        return sauerkraut_client, "llama3.2"
+    elif llm_model == "gemma4":
+        return sauerkraut_client, OLLAMA_MODEL
+    else:
+        return sauerkraut_client, "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M"
+
 def format_transcript(transcript, lang_code="de", llm_model="OpenAI GPT-4o"):
-    active_client = client if llm_model == "OpenAI GPT-4o" else sauerkraut_client
-    model_name = "gpt-4o" if llm_model == "OpenAI GPT-4o" else "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M"
+    active_client, model_name = _resolve_llm(llm_model)
 
     if not active_client:
         yield f"Fehler: API Client für {llm_model} ist nicht konfiguriert."
@@ -277,8 +347,7 @@ def format_transcript(transcript, lang_code="de", llm_model="OpenAI GPT-4o"):
         yield f"Fehler bei der Formatierung: {str(e)}"
 
 def generate_soap_notes(transcript, lang_code="de", llm_model="OpenAI GPT-4o"):
-    active_client = client if llm_model == "OpenAI GPT-4o" else sauerkraut_client
-    model_name = "gpt-4o" if llm_model == "OpenAI GPT-4o" else "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M"
+    active_client, model_name = _resolve_llm(llm_model)
 
     if not active_client:
         yield f"Fehler: API Client für {llm_model} ist nicht konfiguriert."
@@ -354,6 +423,8 @@ def run_pipeline(audio_bytes, stt_model, llm_model, language, file_name=""):
     stt_start = time.time()
     if stt_model == "Whisper Large-v3-turbo (Lokal)":
         raw = transcribe_audio_whisper(audio_bytes, language)
+    elif stt_model == "AssemblyAI (Cloud)":
+        raw = transcribe_audio_assemblyai(audio_bytes, language)
     else:
         raw = transcribe_audio_speechmatics(audio_bytes, language)
     stt_duration = round(time.time() - stt_start, 2)
@@ -397,10 +468,18 @@ def run_pipeline(audio_bytes, stt_model, llm_model, language, file_name=""):
 
 # ── UI Layout ────────────────────────────────────────────────────────────────
 
+st.markdown("""
+<style>
+    html, body, [class*="css"] { font-size: 1.08rem; }
+    .stMarkdown p, .stMarkdown li { font-size: 1.08rem; }
+    .stRadio label, .stSelectbox label, .stMultiSelect label { font-size: 1.05rem; }
+</style>
+""", unsafe_allow_html=True)
+
 st.title("🩺 AI-Anamnesis PoC")
 st.markdown("""
 Dieses Tool dient der Aufzeichnung von Arzt-Patienten-Gesprächen.
-Die Audio-Daten werden asynchron über die **Speechmatics API** transkribiert und anschließend mittels **OpenAI GPT-4o** in eine strukturierte **SOAP-Notiz** überführt.
+Die Audio-Daten werden asynchron transkribiert und anschließend mittels eines LLM in eine strukturierte **SOAP-Notiz** überführt.
 """)
 
 st.divider()
@@ -453,263 +532,261 @@ main_tab1, main_tab2 = st.tabs(["🎙️ Aufnahme & Ergebnisse", "🔬 Batch-Tes
 
 # ── Tab 1: Aufnahme & Ergebnisse ─────────────────────────────────────────────
 with main_tab1:
-    col1, col2 = st.columns([1, 1])
+    st.subheader("1. Gespräch aufzeichnen oder hochladen")
 
-    with col1:
-        st.subheader("1. Gespräch aufzeichnen oder hochladen")
+    st_model_option = st.radio(
+        "Spracherkennungs-Modell (STT):",
+        options=["Speechmatics (Cloud)", "AssemblyAI (Cloud)", "Whisper Large-v3-turbo (Lokal)"],
+        horizontal=True
+    )
 
-        st_model_option = st.radio(
-            "Spracherkennungs-Modell (STT):",
-            options=["Speechmatics (Cloud)", "Whisper Large-v3-turbo (Lokal)"],
-            horizontal=True
+    llm_model_option = st.radio(
+        "Sprachmodell (LLM):",
+        options=["OpenAI GPT-4o", "Llama-3.1-SauerkrautLM-8b-Instruct", "llama3.2", "gemma4"],
+        horizontal=True
+    )
+
+    language_option = st.radio(
+        "Sprache des Gesprächs:",
+        options=["Deutsch", "Englisch", "Automatisch (Auto)"],
+        horizontal=True
+    )
+
+    lang_code = "de"
+    if language_option == "Englisch":
+        lang_code = "en"
+    elif language_option == "Automatisch (Auto)":
+        lang_code = "auto"
+
+    tab1, tab2 = st.tabs(["🎙️ Aufnehmen", "📁 Hochladen"])
+
+    audio_bytes = None
+    audio_file_name = ""
+
+    with tab1:
+        st.write("Bitte auf das Mikrofon-Symbol klicken, um die Aufnahme zu starten und zu stoppen.")
+        recorded_audio = audio_recorder(
+            text="Aufnehmen / Stoppen",
+            recording_color="#e81123",
+            neutral_color="#009688",
+            pause_threshold=60.0
         )
+        if recorded_audio:
+            audio_bytes = recorded_audio
+            audio_file_name = "Aufnahme"
 
-        llm_model_option = st.radio(
-            "Sprachmodell (LLM):",
-            options=["OpenAI GPT-4o", "Llama-3.1-SauerkrautLM-8b-Instruct"],
-            horizontal=True
-        )
+    with tab2:
+        uploaded_file = st.file_uploader("Wähle eine Audiodatei aus", type=["wav", "mp3", "m4a", "ogg"])
+        if uploaded_file is not None:
+            audio_bytes = uploaded_file.read()
+            audio_file_name = uploaded_file.name
 
-        language_option = st.radio(
-            "Sprache des Gesprächs:",
-            options=["Deutsch", "Englisch", "Automatisch (Auto)"],
-            horizontal=True
-        )
+    if audio_bytes:
+        st.audio(audio_bytes, format="audio/wav")
+        process_button = st.button("Audio verarbeiten (Transkription & Zusammenfassung)", type="primary", use_container_width=True)
 
-        lang_code = "de"
-        if language_option == "Englisch":
-            lang_code = "en"
-        elif language_option == "Automatisch (Auto)":
-            lang_code = "auto"
+    st.divider()
+    st.subheader("Ergebnisse")
 
-        tab1, tab2 = st.tabs(["🎙️ Aufnehmen", "📁 Hochladen"])
+    # Initialize session state variables
+    for key, default in [
+        ("raw_transcript", None),
+        ("formatted_transcript", None),
+        ("soap_notes", None),
+        ("processing_stage", None),
+        ("abort_format", False),
+        ("llm_model_at_process", None),
+        ("lang_code_at_process", None),
+        ("stt_model_at_process", None),
+        ("stt_duration", None),
+        ("format_duration", None),
+        ("soap_duration", None),
+        ("pipeline_start", None),
+        ("audio_size_bytes", None),
+        ("audio_file_name_at_process", None),
+    ]:
+        if key not in st.session_state:
+            st.session_state[key] = default
 
-        audio_bytes = None
-        audio_file_name = ""
+    # Start processing when button is clicked
+    if audio_bytes and process_button:
+        st.session_state.raw_transcript = None
+        st.session_state.formatted_transcript = None
+        st.session_state.soap_notes = None
+        st.session_state.abort_format = False
+        st.session_state.processing_stage = 'transcribe'
+        st.session_state.llm_model_at_process = llm_model_option
+        st.session_state.lang_code_at_process = lang_code
+        st.session_state.stt_model_at_process = st_model_option
+        st.session_state.stt_duration = None
+        st.session_state.format_duration = None
+        st.session_state.soap_duration = None
+        st.session_state.pipeline_start = time.time()
+        st.session_state.audio_size_bytes = len(audio_bytes)
+        st.session_state.audio_file_name_at_process = audio_file_name
+        st.rerun()
 
-        with tab1:
-            st.write("Bitte auf das Mikrofon-Symbol klicken, um die Aufnahme zu starten und zu stoppen.")
-            # 'pause_threshold' erhöht, damit die Aufnahme nicht sofort bei Sprechpausen abbricht (Standard ist 0.8s)
-            recorded_audio = audio_recorder(
-                text="Aufnehmen / Stoppen",
-                recording_color="#e81123",
-                neutral_color="#009688",
-                pause_threshold=60.0
-            )
-            if recorded_audio:
-                audio_bytes = recorded_audio
-                audio_file_name = "Aufnahme"
+    # ── Stage: transcription ──────────────────────────────────────────────
+    if st.session_state.processing_stage == 'transcribe':
+        st.markdown("### Transkription läuft...")
+        stt_start = time.time()
+        if st.session_state.stt_model_at_process == "Whisper Large-v3-turbo (Lokal)":
+            transcript = transcribe_audio_whisper(audio_bytes, st.session_state.lang_code_at_process)
+        elif st.session_state.stt_model_at_process == "AssemblyAI (Cloud)":
+            transcript = transcribe_audio_assemblyai(audio_bytes, st.session_state.lang_code_at_process)
+        else:
+            transcript = transcribe_audio_speechmatics(audio_bytes, st.session_state.lang_code_at_process)
+        st.session_state.stt_duration = round(time.time() - stt_start, 2)
 
-        with tab2:
-            uploaded_file = st.file_uploader("Wähle eine Audiodatei aus", type=["wav", "mp3", "m4a", "ogg"])
-            if uploaded_file is not None:
-                audio_bytes = uploaded_file.read()
-                audio_file_name = uploaded_file.name
-
-        if audio_bytes:
-            st.audio(audio_bytes, format="audio/wav")
-            process_button = st.button("Audio verarbeiten (Transkription & Zusammenfassung)", type="primary", use_container_width=True)
-
-    with col2:
-        st.subheader("Ergebnisse")
-
-        # Initialize session state variables
-        for key, default in [
-            ("raw_transcript", None),
-            ("formatted_transcript", None),
-            ("soap_notes", None),
-            ("processing_stage", None),
-            ("abort_format", False),
-            ("llm_model_at_process", None),
-            ("lang_code_at_process", None),
-            ("stt_model_at_process", None),
-            ("stt_duration", None),
-            ("format_duration", None),
-            ("soap_duration", None),
-            ("pipeline_start", None),
-            ("audio_size_bytes", None),
-            ("audio_file_name_at_process", None),
-        ]:
-            if key not in st.session_state:
-                st.session_state[key] = default
-
-        # Start processing when button is clicked
-        if audio_bytes and process_button:
-            st.session_state.raw_transcript = None
-            st.session_state.formatted_transcript = None
-            st.session_state.soap_notes = None
-            st.session_state.abort_format = False
-            st.session_state.processing_stage = 'transcribe'
-            st.session_state.llm_model_at_process = llm_model_option
-            st.session_state.lang_code_at_process = lang_code
-            st.session_state.stt_model_at_process = st_model_option
-            st.session_state.stt_duration = None
-            st.session_state.format_duration = None
-            st.session_state.soap_duration = None
-            st.session_state.pipeline_start = time.time()
-            st.session_state.audio_size_bytes = len(audio_bytes)
-            st.session_state.audio_file_name_at_process = audio_file_name
+        if transcript.startswith("Fehler"):
+            st.error(transcript)
+            st.session_state.processing_stage = None
+        else:
+            st.session_state.raw_transcript = transcript
+            st.session_state.processing_stage = 'format'
             st.rerun()
 
-        # ── Stage: transcription ──────────────────────────────────────────────
-        if st.session_state.processing_stage == 'transcribe':
-            st.markdown("### Transkription läuft...")
-            stt_start = time.time()
-            if st.session_state.stt_model_at_process == "Whisper Large-v3-turbo (Lokal)":
-                transcript = transcribe_audio_whisper(audio_bytes, st.session_state.lang_code_at_process)
-            else:
-                transcript = transcribe_audio_speechmatics(audio_bytes, st.session_state.lang_code_at_process)
-            st.session_state.stt_duration = round(time.time() - stt_start, 2)
+    # ── Stage: format transcript ──────────────────────────────────────────
+    elif st.session_state.processing_stage == 'format':
+        st.markdown("### Transkription")
+        with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
+            st.write(st.session_state.raw_transcript)
 
-            if transcript.startswith("Fehler"):
-                st.error(transcript)
-                st.session_state.processing_stage = None
-            else:
-                st.session_state.raw_transcript = transcript
-                st.session_state.processing_stage = 'format'
+        col_info, col_abort = st.columns([3, 1])
+        with col_info:
+            st.info(f"Formatiere Transkript und identifiziere Sprecher ({st.session_state.llm_model_at_process})...")
+        with col_abort:
+            if st.button("Abbrechen", key="abort_format_btn", use_container_width=True):
+                st.session_state.abort_format = True
+                st.session_state.format_duration = 0.0
+                st.session_state.processing_stage = 'soap'
                 st.rerun()
 
-        # ── Stage: format transcript ──────────────────────────────────────────
-        elif st.session_state.processing_stage == 'format':
-            st.markdown("### Transkription")
-            with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
-                st.write(st.session_state.raw_transcript)
-
-            col_info, col_abort = st.columns([3, 1])
-            with col_info:
-                st.info(f"Formatiere Transkript und identifiziere Sprecher ({st.session_state.llm_model_at_process})...")
-            with col_abort:
-                if st.button("Abbrechen", key="abort_format_btn", use_container_width=True):
-                    st.session_state.abort_format = True
-                    st.session_state.format_duration = 0.0
-                    st.session_state.processing_stage = 'soap'
-                    st.rerun()
-
-            format_start = time.time()
-            with st.expander("Genaue Transkription anzeigen", expanded=True):
-                stream = format_transcript(
-                    st.session_state.raw_transcript,
-                    st.session_state.lang_code_at_process,
-                    st.session_state.llm_model_at_process,
-                )
-                st.session_state.formatted_transcript = st.write_stream(stream)
-            st.session_state.format_duration = round(time.time() - format_start, 2)
-
-            st.session_state.processing_stage = 'soap'
-            st.rerun()
-
-        # ── Stage: SOAP generation ────────────────────────────────────────────
-        elif st.session_state.processing_stage == 'soap':
-            st.markdown("### Transkription")
-            with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
-                st.write(st.session_state.raw_transcript)
-            with st.expander("Genaue Transkription anzeigen", expanded=True):
-                if st.session_state.formatted_transcript:
-                    st.write(st.session_state.formatted_transcript)
-                else:
-                    st.write(st.session_state.raw_transcript)
-
-            if st.session_state.abort_format:
-                st.warning("Formatierung abgebrochen – SOAP wird aus Rohtranskript erstellt.")
-
-            soap_input = st.session_state.formatted_transcript if st.session_state.formatted_transcript else st.session_state.raw_transcript
-
-            st.markdown("### Medizinische Dokumentation (SOAP)")
-            st.info(f"Generiere SOAP Notes ({st.session_state.llm_model_at_process})...")
-            soap_start = time.time()
-            stream_soap = generate_soap_notes(soap_input, st.session_state.lang_code_at_process, st.session_state.llm_model_at_process)
-            st.session_state.soap_notes = st.write_stream(stream_soap)
-            st.session_state.soap_duration = round(time.time() - soap_start, 2)
-
-            total_duration = round(time.time() - st.session_state.pipeline_start, 2) if st.session_state.pipeline_start else None
-
-            meta = {
-                "stt_model": st.session_state.stt_model_at_process,
-                "llm_model": st.session_state.llm_model_at_process,
-                "language": st.session_state.lang_code_at_process,
-                "audio_file": st.session_state.audio_file_name_at_process or "",
-                "audio_size_bytes": st.session_state.audio_size_bytes or 0,
-                "stats": {
-                    "stt_duration_s": st.session_state.stt_duration,
-                    "format_duration_s": st.session_state.format_duration,
-                    "soap_duration_s": st.session_state.soap_duration,
-                    "total_duration_s": total_duration,
-                    "raw_char_count": len(st.session_state.raw_transcript or ""),
-                    "formatted_char_count": len(st.session_state.formatted_transcript or ""),
-                    "soap_char_count": len(st.session_state.soap_notes or ""),
-                }
-            }
-
-            st.session_state.processing_stage = None
-            save_to_history(st.session_state.raw_transcript, st.session_state.formatted_transcript, st.session_state.soap_notes, meta)
-            st.rerun()
-
-        elif st.session_state.formatted_transcript or st.session_state.raw_transcript:
-            if st.session_state.get("viewing_history") and st.session_state.get("current_history_id"):
-                st.info("Sie betrachten einen Eintrag aus dem Verlauf.")
-                current_entry = next((e for e in history_data if e["id"] == st.session_state.current_history_id), None)
-                if current_entry:
-                    col_name1, col_name2 = st.columns([3, 1])
-                    with col_name1:
-                        new_name = st.text_input("Eintrag umbenennen:", value=current_entry.get("name") or "", label_visibility="collapsed", placeholder="Neuer Name für den Eintrag")
-                    with col_name2:
-                        if st.button("Speichern", use_container_width=True, key="save_name_btn"):
-                            rename_history_entry(current_entry["id"], new_name)
-                            st.rerun()
-
-                    # ── Stats panel ───────────────────────────────────────────
-                    if current_entry.get("stats"):
-                        s = current_entry["stats"]
-                        with st.expander("📊 Statistiken", expanded=True):
-                            m1, m2, m3, m4 = st.columns(4)
-                            m1.metric("STT-Dauer", f"{s.get('stt_duration_s', '–')} s")
-                            m2.metric("Format-Dauer", f"{s.get('format_duration_s', '–')} s")
-                            m3.metric("SOAP-Dauer", f"{s.get('soap_duration_s', '–')} s")
-                            m4.metric("Gesamt", f"{s.get('total_duration_s', '–')} s")
-
-                            st.divider()
-                            c1, c2 = st.columns(2)
-                            with c1:
-                                st.write(f"**STT-Modell:** {current_entry.get('stt_model', '–')}")
-                                st.write(f"**LLM-Modell:** {current_entry.get('llm_model', '–')}")
-                                st.write(f"**Sprache:** {current_entry.get('language', '–')}")
-                            with c2:
-                                size_kb = round(current_entry.get('audio_size_bytes', 0) / 1024, 1)
-                                st.write(f"**Audio:** {current_entry.get('audio_file', '–')} ({size_kb} KB)")
-                                st.write(f"**Rohtranskript:** {s.get('raw_char_count', '–')} Zeichen")
-                                st.write(f"**Formatiert:** {s.get('formatted_char_count', '–')} Zeichen")
-                                st.write(f"**SOAP:** {s.get('soap_char_count', '–')} Zeichen")
-
-                st.divider()
-
-            st.markdown("### Transkription")
-
-            if st.session_state.raw_transcript:
-                with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
-                    st.write(st.session_state.raw_transcript)
-
-            display_transcript = st.session_state.formatted_transcript or st.session_state.raw_transcript or ""
-            with st.expander("Genaue Transkription anzeigen", expanded=True):
-                st.write(display_transcript)
-
-            st.download_button(
-                label="Transkript Herunterladen",
-                data=display_transcript,
-                file_name="transkript.txt",
-                mime="text/plain"
+        format_start = time.time()
+        with st.expander("Genaue Transkription anzeigen", expanded=True):
+            stream = format_transcript(
+                st.session_state.raw_transcript,
+                st.session_state.lang_code_at_process,
+                st.session_state.llm_model_at_process,
             )
+            st.session_state.formatted_transcript = st.write_stream(stream)
+        st.session_state.format_duration = round(time.time() - format_start, 2)
+
+        st.session_state.processing_stage = 'soap'
+        st.rerun()
+
+    # ── Stage: SOAP generation ────────────────────────────────────────────
+    elif st.session_state.processing_stage == 'soap':
+        st.markdown("### Transkription")
+        with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
+            st.write(st.session_state.raw_transcript)
+        with st.expander("Genaue Transkription anzeigen", expanded=True):
+            if st.session_state.formatted_transcript:
+                st.write(st.session_state.formatted_transcript)
+            else:
+                st.write(st.session_state.raw_transcript)
+
+        if st.session_state.abort_format:
+            st.warning("Formatierung abgebrochen – SOAP wird aus Rohtranskript erstellt.")
+
+        soap_input = st.session_state.formatted_transcript if st.session_state.formatted_transcript else st.session_state.raw_transcript
+
+        st.markdown("### Medizinische Dokumentation (SOAP)")
+        st.info(f"Generiere SOAP Notes ({st.session_state.llm_model_at_process})...")
+        soap_start = time.time()
+        stream_soap = generate_soap_notes(soap_input, st.session_state.lang_code_at_process, st.session_state.llm_model_at_process)
+        st.session_state.soap_notes = st.write_stream(stream_soap)
+        st.session_state.soap_duration = round(time.time() - soap_start, 2)
+
+        total_duration = round(time.time() - st.session_state.pipeline_start, 2) if st.session_state.pipeline_start else None
+
+        meta = {
+            "stt_model": st.session_state.stt_model_at_process,
+            "llm_model": st.session_state.llm_model_at_process,
+            "language": st.session_state.lang_code_at_process,
+            "audio_file": st.session_state.audio_file_name_at_process or "",
+            "audio_size_bytes": st.session_state.audio_size_bytes or 0,
+            "stats": {
+                "stt_duration_s": st.session_state.stt_duration,
+                "format_duration_s": st.session_state.format_duration,
+                "soap_duration_s": st.session_state.soap_duration,
+                "total_duration_s": total_duration,
+                "raw_char_count": len(st.session_state.raw_transcript or ""),
+                "formatted_char_count": len(st.session_state.formatted_transcript or ""),
+                "soap_char_count": len(st.session_state.soap_notes or ""),
+            }
+        }
+
+        st.session_state.processing_stage = None
+        save_to_history(st.session_state.raw_transcript, st.session_state.formatted_transcript, st.session_state.soap_notes, meta)
+        st.rerun()
+
+    elif st.session_state.formatted_transcript or st.session_state.raw_transcript:
+        if st.session_state.get("viewing_history") and st.session_state.get("current_history_id"):
+            st.info("Sie betrachten einen Eintrag aus dem Verlauf.")
+            current_entry = next((e for e in history_data if e["id"] == st.session_state.current_history_id), None)
+            if current_entry:
+                col_name1, col_name2 = st.columns([3, 1])
+                with col_name1:
+                    new_name = st.text_input("Eintrag umbenennen:", value=current_entry.get("name") or "", label_visibility="collapsed", placeholder="Neuer Name für den Eintrag")
+                with col_name2:
+                    if st.button("Speichern", use_container_width=True, key="save_name_btn"):
+                        rename_history_entry(current_entry["id"], new_name)
+                        st.rerun()
+
+                # ── Stats panel ───────────────────────────────────────────
+                if current_entry.get("stats"):
+                    s = current_entry["stats"]
+                    with st.expander("📊 Statistiken", expanded=True):
+                        m1, m2, m3, m4 = st.columns(4)
+                        m1.metric("STT-Dauer", f"{s.get('stt_duration_s', '–')} s")
+                        m2.metric("Format-Dauer", f"{s.get('format_duration_s', '–')} s")
+                        m3.metric("SOAP-Dauer", f"{s.get('soap_duration_s', '–')} s")
+                        m4.metric("Gesamt", f"{s.get('total_duration_s', '–')} s")
+
+                        st.divider()
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            st.write(f"**STT-Modell:** {current_entry.get('stt_model', '–')}")
+                            st.write(f"**LLM-Modell:** {current_entry.get('llm_model', '–')}")
+                            st.write(f"**Sprache:** {current_entry.get('language', '–')}")
+                        with c2:
+                            size_kb = round(current_entry.get('audio_size_bytes', 0) / 1024, 1)
+                            st.write(f"**Audio:** {current_entry.get('audio_file', '–')} ({size_kb} KB)")
+                            st.write(f"**Rohtranskript:** {s.get('raw_char_count', '–')} Zeichen")
+                            st.write(f"**Formatiert:** {s.get('formatted_char_count', '–')} Zeichen")
+                            st.write(f"**SOAP:** {s.get('soap_char_count', '–')} Zeichen")
 
             st.divider()
 
-            if st.session_state.soap_notes:
-                st.markdown("### Medizinische Dokumentation (SOAP)")
-                if st.session_state.soap_notes.startswith("Fehler"):
-                    st.error(st.session_state.soap_notes)
-                else:
-                    st.success("Erfolgreich generiert!")
-                    st.markdown(st.session_state.soap_notes)
-        elif not audio_bytes:
-            st.info("Bitte zeichnen Sie zunächst ein Audio auf, um die Ergebnisse hier zu sehen.")
+        st.markdown("### Transkription")
+
+        if st.session_state.raw_transcript:
+            with st.expander("Rohes Transkript anzeigen (STT Output)", expanded=False):
+                st.write(st.session_state.raw_transcript)
+
+        display_transcript = st.session_state.formatted_transcript or st.session_state.raw_transcript or ""
+        with st.expander("Genaue Transkription anzeigen", expanded=True):
+            st.write(display_transcript)
+
+        st.download_button(
+            label="Transkript Herunterladen",
+            data=display_transcript,
+            file_name="transkript.txt",
+            mime="text/plain"
+        )
+
+        st.divider()
+
+        if st.session_state.soap_notes:
+            st.markdown("### Medizinische Dokumentation (SOAP)")
+            if st.session_state.soap_notes.startswith("Fehler"):
+                st.error(st.session_state.soap_notes)
+            else:
+                st.success("Erfolgreich generiert!")
+                st.markdown(st.session_state.soap_notes)
+    elif not audio_bytes:
+        st.info("Bitte zeichnen Sie zunächst ein Audio auf, um die Ergebnisse hier zu sehen.")
 
 # ── Tab 2: Batch-Test ─────────────────────────────────────────────────────────
 with main_tab2:
@@ -740,12 +817,12 @@ with main_tab2:
             st.markdown("**Modell-Konfiguration:**")
             batch_stt_options = st.multiselect(
                 "STT-Modelle:",
-                options=["Speechmatics (Cloud)", "Whisper Large-v3-turbo (Lokal)"],
+                options=["Speechmatics (Cloud)", "AssemblyAI (Cloud)", "Whisper Large-v3-turbo (Lokal)"],
                 default=["Speechmatics (Cloud)", "Whisper Large-v3-turbo (Lokal)"],
             )
             batch_llm_options = st.multiselect(
                 "LLM-Modelle:",
-                options=["OpenAI GPT-4o", "Llama-3.1-SauerkrautLM-8b-Instruct"],
+                options=["OpenAI GPT-4o", "Llama-3.1-SauerkrautLM-8b-Instruct", "llama3.2", "gemma4"],
                 default=["OpenAI GPT-4o"],
             )
             batch_language = st.selectbox(
@@ -812,6 +889,8 @@ with main_tab2:
                     stt_start = time.time()
                     if stt_model == "Whisper Large-v3-turbo (Lokal)":
                         raw = transcribe_audio_whisper(audio_data, batch_language)
+                    elif stt_model == "AssemblyAI (Cloud)":
+                        raw = transcribe_audio_assemblyai(audio_data, batch_language)
                     else:
                         raw = transcribe_audio_speechmatics(audio_data, batch_language)
                     stt_dur = round(time.time() - stt_start, 2)
