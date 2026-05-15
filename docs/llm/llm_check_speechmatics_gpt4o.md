@@ -1,8 +1,17 @@
 # LLM-Fehleranalyse: Speechmatics + GPT-4o
 
-> RAW STT → Formatted — Satzzeichen und Groß-/Kleinschreibung ignoriert.
-> Speaker-Label-Änderungen sind bereits aus der JSON entfernt.
-> **S** = Substitution | **D** = Löschung (im RAW, fehlt im FMT) | **I** = Einfügung (im FMT, nicht im RAW)
+> RAW STT → Formatted — Satzzeichen und Groß-/Kleinschreibung ignoriert.<br>
+> Speaker-Label-Änderungen sind bereits aus der JSON entfernt.<br>
+> **S** = Substitution | **D** = Löschung (im RAW, fehlt im FMT) | **I** = Einfügung (im FMT, nicht im RAW)<br>
+
+---
+
+## Modell-Informationen
+
+| Komponente | Exakte Bezeichnung | Kontextfenster |
+|---|---|---|
+| STT | Speechmatics Cloud — `enhanced` operating point, Speaker Diarization aktiviert | — |
+| LLM | `gpt-4o` (OpenAI) | 128.000 Tokens |
 
 ---
 

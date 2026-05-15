@@ -1,8 +1,17 @@
 # LLM-Fehleranalyse: Whisper + SauerkrautLM 8b
 
-> RAW STT → Formatted — Satzzeichen und Groß-/Kleinschreibung ignoriert.
-> Speaker-Label-Änderungen sind bereits aus der JSON entfernt.
-> **S** = Substitution | **D** = Löschung (im RAW, fehlt im FMT) | **I** = Einfügung (im FMT, nicht im RAW)
+> RAW STT → Formatted — Satzzeichen und Groß-/Kleinschreibung ignoriert. <br>
+> Speaker-Label-Änderungen sind bereits aus der JSON entfernt.<br>
+> **S** = Substitution | **D** = Löschung (im RAW, fehlt im FMT) | **I** = Einfügung (im FMT, nicht im RAW)<br>
+
+---
+
+## Modell-Informationen
+
+| Komponente | Exakte Bezeichnung | Kontextfenster |
+|---|---|---|
+| STT | `faster-whisper large-v3-turbo` (lokal, CPU, int8) + pyannote/speaker-diarization-3.1 | — |
+| LLM | `hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M` (Ollama) | 131.072 Tokens (128k) |
 
 ---
 

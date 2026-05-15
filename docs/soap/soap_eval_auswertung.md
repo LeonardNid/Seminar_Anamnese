@@ -1,8 +1,9 @@
 # SOAP Evaluation: Auswertung
 
-> Bewertet wird die Informationsübertragung vom Transkript in die SOAP-Notiz.
-> Score pro Sektion: 0–2 | Gesamt: 0–8
-> ✓ = akzeptabel (6–8) | ⚠ = Überarbeitung nötig (3–6) | ✗ = nicht verwendbar (0–3)
+> Bewertet wird die Informationsübertragung vom Transkript in die SOAP-Notiz. <br>
+> Score pro Sektion: 0–2 | Gesamt: 0–8 <br>
+> ✓ = akzeptabel (6-8] | ⚠ = Überarbeitung nötig (3–6] | ✗ = nicht verwendbar [0–3] <br>
+> Hinweis: Intervallschreibweise <br>
 > `auto` = automatisch nicht_verwendbar (leeres SOAP oder >90% LLM-Fehlerrate)
 
 ---
@@ -542,4 +543,3 @@
 | Anamnesegespräch | O | Schmerzlokalisation nicht dokumentiert – Patient zeigte dem Arzt die konkrete Schmerzstelle am Knie |
 
 ---
-
