@@ -58,22 +58,22 @@ Antworte jetzt ausschließlich mit diesem JSON (keine Codeblöcke, kein Markdown
 
 {
   "S": {
-    "score": <0-3>,
+    "score": <0-2>,
     "halluzinationen": [],
     "auslassungen": []
   },
   "O": {
-    "score": <0-3>,
+    "score": <0-2>,
     "halluzinationen": [],
     "auslassungen": []
   },
   "A": {
-    "score": <0-3>,
+    "score": <0-2>,
     "halluzinationen": [],
     "auslassungen": []
   },
   "P": {
-    "score": <0-3>,
+    "score": <0-2>,
     "halluzinationen": [],
     "auslassungen": []
   },
