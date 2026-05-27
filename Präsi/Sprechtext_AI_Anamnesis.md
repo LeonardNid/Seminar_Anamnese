@@ -197,8 +197,10 @@ Reflux — offiziell gastroösophageale Refluxkrankheit — ist wenn Magensäure
 > 
 > Und jetzt der Plan. (einige Stichpunkte vorlesen). 
 > 
-> Das klingt alles medizinisch plausibel — und genau das ist das Problem. Nichts davon wurde im Gespräch erwähnt. Das Modell hat sich das alles ausgedacht. Und weil es so plausibel klingt, fällt es möglicherweise im Alltag gar nicht auf. 
-> Und ich denke, keiner von uns will, dass halluzinierte Therapievorschläge unbemerkt in einer Patientenakte landen. 
+> Das klingt alles medizinisch plausibel — und genau das ist das Problem. Nichts davon wurde im Gespräch erwähnt. Das Modell hat sich das alles ausgedacht. Und weil es so plausibel klingt, fällt es möglicherweise im Alltag gardass halluzinierte Therapievorschläge unbemerkt in einer Patientenakte landen.  nicht auf. 
+
+> Und ich denke, keiner von uns will, dass wir wegen einem halluzinierten Therapievorschlag Auf einmal Antibiotika nehmen sollen, obwohl wir nur eine leichte Erkältung haben. 
+
 > Ob das ein Einzelfall war oder öfter passiert schauen wir uns jetzt an.
 > 
 
@@ -222,9 +224,10 @@ WER auf die x achse schreiben?
 
 > Jetzt zur zweiten Stufe der Pipeline. 
 >
-> Die LLM sollte nur die Lable der Speaker ersetzen und mehr nicht. Alle weiteren Änderungen zählen also als fehler und genau das haben wir gemessen.
+> Die LLM sollte nur die Lable der Speaker korrekt setzen und mehr nicht. Alle weiteren Änderungen zählen also als fehler welche wir gezählt und gemessen haben.
 >
-> Sauerkraut kommt auf fast 20 Prozent Fehlerrate. Die lokalen Modelle schreiben um, kürzen, fügen hinzu und im extremfall, fassen sie das gesamte Gespräch zusammen. Sie folgen der Anweisung also nur eingeschränkt.
+> Sauerkraut kommt auf fast 20 Prozent Fehlerrate, Llama und Gemma kommen auf circa 14 Prozent. 
+> Die lokalen Modelle schreiben um, kürzen, fügen hinzu und im extremfall, fassen sie das gesamte Gespräch zusammen. Sie folgen der Anweisung also nur eingeschränkt.
 > 
 > GPT-4o macht dagegen praktisch keine Fehler. Und was besonders bemerkenswert ist: In einigen Szenarien hat das STT nur einen einzigen Sprecher erkannt, also gar keine Diarisierung geliefert. GPT-4o hat trotzdem beide Sprecher durchgehend korrekt gelabelt — allein aus dem Kontext des Textes heraus.
 
@@ -235,15 +238,17 @@ Notes: 1 min
 
 ### Folie 13 — The Anamnese Catastrophe *(14:15 – 15:15)*
 
-> Und hier wird es richtig drastisch, wir schauen uns jetzt eine dieser Zusammenfassungen an, nämlich Das 19-Minuten-Anamnesegespräch — unser längstes Szenario. Der Raw STT Output enthält 2.269 Wörter. Nach dem Formatieren durch SauerkrautLM sind nur noch 152 Wörter übrig. 
+> Schauen wir uns einmal eine dieser Zusammenfassungen an, nämlich Das 19-Minuten-Anamnesegespräch. Der Raw STT Output enthält 2.269 Wörter. Nach dem Formatieren durch SauerkrautLM sind nur noch 152 Wörter übrig. 
 
 > Hier wurde also **93 Prozent** des Inhalts still und leise gelöscht.
 >
 > Und das ist kein Einzelfall. Alle lokalen Modelle haben massive Probleme mit längeren Gesprächen. 
 >
->Interesanterweise haben alle Modelle das gleiche Kontextwindow, und dennoch versagen nur die lokalen Modelle.
+> Und 19 Minuten ist wahrscheinlich das Absolute minimum von einem Arzt-Gespräch, in echt sind sie wahrscheilich sogar noch länger.
 >
-> Das Hauptproblem an dieser Stelle ist, dass in der Medizin still gelöschte Information gefährlicher sind als sichtbar falsche.
+>Interesanterweise haben alle Modelle, auch GPT, das gleiche Kontextwindow, und dennoch versagen nur die lokalen Modelle.
+>
+> Der Graund warum das so ein großes Problem ist, ist dass in der Medizin still gelöschte Information gefährlicher sind als sichtbar falsche.
 
 Notes: 50 sek
 
@@ -255,8 +260,8 @@ Notes: 50 sek
 > 
 > Die GPT-4o-Kombinationen landen im gelben Bereich. Gemma und Sauerkraut liegen ebenfalls im gelben Bereich, aber am unteren Ende. Llama fällt als einziges in den roten Bereich. 
 >
-> Zusätlich kann man rechts in der Tabelle sehen, dass kein einziges der 55 Ergebnisse die Schwelle akzeptabel erreicht — null von 55. Der Plan-Teil ist bei jedem Modell halluziniert. 
->Überall stehen Therapievorschläge, die nie im Gespräch vorkamen.
+> Zusätlich kann man rechts in der Tabelle sehen, dass kein einziges der 55 Ergebnisse die Schwelle akzeptabel erreicht — null von 55. 
+> Der Plan-Teil ist bei jedem Modell halluziniert. Überall stehen Therapievorschläge, die nie im Gespräch vorkamen.
 
 Notes: 1 min
 
@@ -267,7 +272,8 @@ Notes: 1 min
 > Wenn wir uns auf Gewinner festlegen müssten, wären es einmal AssemblyAI und einmal GPT-4o. AssemblyAI, da sie die niedrigste Fehlerrate bei der Transkription hat 
 >und GPT-4o hat null Halluzination beim Formatieren und den beste SOAP-Score.
 > 
-> Aber — und das ist der entscheidende Punkt: „Bester von fünf" heißt nicht unbedingt „gut". Bei SOAP haben null Runs „akzeptabel" erreicht, wie eben erwähnt. Der Plan-Teil liegt im Schnitt bei 0,1 von 2 Punkten. Und bei einer schlechten Audio bricht nach wie vor alles zusammen. Wir würden also heute keinem Arzt empfehlen, eine dieser Notizen ungeprüft zu übernehmen.
+> Aber — und das ist der entscheidende Punkt: „Bester von fünf" heißt nicht unbedingt „gut". Bei SOAP haben null Runs „akzeptabel" erreicht, wie eben erwähnt. Der Plan-Teil liegt im Schnitt bei 0,1 von 2 Punkten. Und bei einer schlechten Audio bricht nach wie vor alles zusammen. 
+> Wir würden also heute keinem Arzt empfehlen, eine dieser Notizen ungeprüft zu übernehmen.
 
 Notes: 45 sek
 
@@ -276,8 +282,8 @@ Notes: 45 sek
 ### Folie 16 — Limitations *(16:45 – 17:15)*
 
 > Drei Dinge haben wir bewusst ausgelassen. 
-> Wir haben bewusst auf Real-time verzichtet, obwohl das ursprünglich Teil der Aufgabenstellung war. Bei Streaming sieht das Modell immer nur einen Bruchteil des Gesprächs, wodurch die Qualität leidet. Dazu kamen Hardware-Grenzen. Wir haben uns deshalb für die Batch-Verarbeitung entschieden, um die Modellqualität sauber und vergleichbar messen zu können.
-> Außerdem haben wir den Prompt nicht für einzelne Modelle optimiert, sondern für alle denselben verwendet — das macht den Vergleich fair, lässt aber gerade beim Plan-Teil von SOAP enormes Potenzial liegen. 
+> Wir haben bewusst auf Real-time verzichtet — nicht weil es nicht geht, sondern weil wir zuerst die maximale Qualität im Batch-Betrieb testen wollten. Also was die Pipeline leisten kann, wenn sie das vollständige Gespräch hat. 
+> Außerdem haben wir den Prompt nicht für die Modelle optimiert, sondern für alle denselben einfachen Prompt verwendet. Das macht den Vergleich fair — lässt aber enormes Potenzial liegen, vor allem beim Plan-Teil von SOAP. 
 > Und alle Szenarien waren auf Deutsch. Ob die Ergebnisse auf andere Sprachen übertragbar sind, bleibt offen.
 
 Notes: 45 sek
@@ -286,24 +292,24 @@ Notes: 45 sek
 
 ### Folie 17 — Privacy *(17:15 – 17:45)*
 
-> Datenschutz ist in der Medizin nicht optional. Schauen wir uns an, wo die Modelle stehen.
->
-> Die lokalen Modelle bleiben vollständig auf eigener Hardware — Datenschutz ist gewährleistet, aber die Qualität bleibt deutlich hinter den Cloud-Modellen zurück.
->
-> Speechmatics ist ein Kompromiss — das STT läuft in der EU, das LLM jedoch in den USA.
->
-> Assembly und GPT-4o liefern die beste Qualität, schicken aber die Audiodaten vollständig in die US-Cloud. Der ideale Quadrant — hohe Qualität und voll lokal — ist heute leer. Genau da wollen wir hin.
+> Datenschutz ist in der Medizin sehr wichtig, und wir sind schon sehr nah darn, aber leider noch nicht ganz.
+
+> Die lokalen Modelle laufen vollständig auf eigener Hardware, wodurch leider die Qualität etwas leidet -- Aber dadurch haben wir die vollständige Kontrolle über die Daten und brauchen kein Drittanbieter. 
+
+> Die Cloud Modelle lassen sich alle in der EU Hosten. Dadurch sind Sie DSGVO konform, jedoch müssen wir immernoch beachten, dass personenbezogene Daten immer noch durch fremden Servern laufen, was viele wahrscheinlich nicht akzeptieren werden. 
+
+> Wir sind also weder mit den lokal noch mit den Cloud Modellen an unserem Ziel von hoher Qualität und voller Datensowierinität. 
+
+> Was die nächsten Schritte sind, um an den Ort zu kommen, an den wir eigentlich hin wollen, schauen wir uns jetzt an.
+
 
 Notes: 40 sek
-
-Hier keine Animationen
 
 ---
 
 ### Folie 18 — Next Steps *(17:45 – 18:45)*
 
-> Wo geht es von hier aus weiter?
-> Der erste Schritt sind größere lokale Modelle — SauerkrautLM 70B beispielsweise auf dedizierter GPU, um die Qualitätslücke zur Cloud zu schließen. 
+> Der erste Schritt sind größere lokale Modelle — wir haben die Analyse hier auf meinem kleinen Laptop durchgeführt, aber mit besserer Hardware könnten wir sicherlich die Lücke zwischen Cloud und Lokal etwas schließen.
 
 > Der zweite Schritt ist Prompt Engineering. Zum Beispiel eine klare Regel: Wenn eine Therapie im Gespräch nicht erwähnt wurde, darf das Modell sie nicht vorschlagen. 
 >Außerdem könnte Chunking helfen, damit lokale Modelle auch lange Gespräche vollständig verarbeiten können.
@@ -316,11 +322,11 @@ Notes: 1 min
 
 ### Folie 19 — Three Things *(18:45 – 19:30)*
 
-> Drei Sätze, die wir euch mitgeben wollen. *(nacheinander einblenden)*
+> Zum Abschluss noch einmal drei Sätze, die wir euch mitgeben wollen. *(nacheinander einblenden)*
 >
-> **Erstens:** Die Pipeline funktioniert — aber der Plan-Teil ist halluziniert bei jedem einzelnen Durchlauf.
+> **Erstens:** Die Pipeline funktioniert — jedoch wird bei jedem einzelnen Durchlauf der Planteil halluziniert.
 >
-> **Zweitens:** Hardware und Modellgröße sind die Stellschrauben — die Cloud-Lücke schließt sich, sobald lokale Modelle wachsen.
+> **Zweitens:** Entscheidend sind die Hardware und die Modellgröße — die Cloud-Lücke könnte sich schließen, sobald die lokale Modelle wachsen.
 >
 > **Drittens:** KI assistiert heute bei der medizinischen Dokumentation. Ersetzen tut sie es noch nicht.
 
@@ -332,7 +338,7 @@ Notes: 30 sek
 
 ### Folie 20 — Q&A *(19:30+)*
 
-> Vielen Dank für eure Aufmerksamkeit, gibt es noch fragen?
+> Vielen Dank für eure Aufmerksamkeit, gibt es noch irgendwlche Fragen?
 
 *(Keine vorbereitete Rede — Fragen aus dem Publikum)*
 
