@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 
 REPO     = Path(__file__).parent.parent.parent
-IN_FILE  = REPO / "results" / "soap_eval_results.json"
-OUT_FILE = REPO / "docs" / "soap_eval_auswertung.md"
+IN_FILE  = REPO / "results" / "v1_praesentation" / "soap_eval_results.json"
+OUT_FILE = REPO / "docs" / "v1_praesentation" / "soap_eval_auswertung.md"
 
 MODEL_ORDER = [
     'Whisper+llama3.2',
@@ -181,6 +181,7 @@ for model in MODEL_ORDER:
     out.append('---')
     out.append('')
 
+OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 OUT_FILE.write_text('\n'.join(out) + '\n')
 print(f'Geschrieben: {OUT_FILE}')
 

@@ -7,7 +7,7 @@ import json, re
 from pathlib import Path
 
 REPO      = Path(__file__).parent.parent.parent
-DATA_FILE = REPO / "results" / "history_no_speaker.json"
+DATA_FILE = REPO / "results" / "v1_praesentation" / "history_no_speaker.json"
 
 PUNCT = re.compile(r'[.,!?;:\-–—()\[\]"\'„"«»/]')
 
@@ -144,6 +144,7 @@ def run(stt_filter, llm_filter, title, out_file):
         for i, (typ, rw, fw, c) in enumerate(r['errors'], 1):
             out.append(f'| {i} | {typ} | `{rw}` | `{fw}` | {c} |')
 
-    out_path = REPO / "docs" / out_file
+    out_path = REPO / "docs" / "v1_praesentation" / out_file
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text('\n'.join(out) + '\n')
     print(f'\nGeschrieben: {out_path}')

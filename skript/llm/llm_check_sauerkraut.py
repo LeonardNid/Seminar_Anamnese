@@ -59,7 +59,7 @@ ORDER = ['OriginalDC','OriginalDC+Noise','LapInMitte','LapBeiArzt',
          'Selbstkorrekturen','Unterbrechungen','Gedankensprünge',
          'Meinungswechsel','Chaos','Anamnesegespräch','PWC']
 
-with open('/home/leonardn/gitprojs/Seminar/results/history_no_speaker.json') as f:
+with open('/home/leonardn/gitprojs/Seminar/results/v1_praesentation/history_no_speaker.json') as f:
     data = json.load(f)
 
 entries = [e for e in data if 'Sauerkraut' in e.get('llm_model', '')]
@@ -125,7 +125,8 @@ for name in ORDER:
     for i, (typ, rw, fw, c) in enumerate(r['errors'], 1):
         out.append(f'| {i} | {typ} | `{rw}` | `{fw}` | {c} |')
 
-with open('/home/leonardn/gitprojs/Seminar/docs/llm_check_whisper_sauerkraut.md', 'w') as f:
+import os; os.makedirs('/home/leonardn/gitprojs/Seminar/docs/v1_praesentation', exist_ok=True)
+with open('/home/leonardn/gitprojs/Seminar/docs/v1_praesentation/llm_check_whisper_sauerkraut.md', 'w') as f:
     f.write('\n'.join(out) + '\n')
 
 print('\nFertig.')

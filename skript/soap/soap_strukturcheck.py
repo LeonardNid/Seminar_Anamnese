@@ -7,8 +7,8 @@ import json, re
 from pathlib import Path
 
 REPO      = Path(__file__).parent.parent.parent
-DATA_FILE = REPO / "results" / "history_no_speaker.json"
-OUT_FILE  = REPO / "docs" / "soap_strukturcheck.md"
+DATA_FILE = REPO / "results" / "v1_praesentation" / "history_no_speaker.json"
+OUT_FILE  = REPO / "docs" / "v1_praesentation" / "soap_strukturcheck.md"
 
 PUNCT = re.compile(r'[.,!?;:\-–—()\[\]"\'„"«»/]')
 
@@ -197,5 +197,6 @@ for model in MODEL_ORDER:
         f"| {avg_w:.0f}w |"
     )
 
+OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 OUT_FILE.write_text('\n'.join(out) + '\n')
 print(f'\nGeschrieben: {OUT_FILE}')

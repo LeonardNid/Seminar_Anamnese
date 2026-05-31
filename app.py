@@ -10,6 +10,7 @@ import tempfile
 from faster_whisper import WhisperModel
 from pyannote.audio import Pipeline
 from datetime import datetime
+from speaker_format import parse_turns, distinct_labels, identify_roles, apply_mapping
 
 # Load environment variables
 load_dotenv()
@@ -281,68 +282,27 @@ def _resolve_llm(llm_model):
         return sauerkraut_client, "hf.co/QuantFactory/Llama-3.1-SauerkrautLM-8b-Instruct-GGUF:Q4_K_M"
 
 def format_transcript(transcript, lang_code="de", llm_model="OpenAI GPT-4o"):
+    """Ersetzt Speaker-Labels deterministisch.
+
+    LLM liefert nur die Rollen-Zuordnung (JSON); das Ersetzen und
+    der Zeilenumbruch nach jedem Sprecherwechsel passieren per Skript.
+    Generator-Signatur bleibt erhalten (ein einzelnes yield).
+    """
     active_client, model_name = _resolve_llm(llm_model)
 
     if not active_client:
         yield f"Fehler: API Client für {llm_model} ist nicht konfiguriert."
         return
 
-    if lang_code == "en":
-        system_prompt = """
-            You are a helpful assistant. Here is a raw transcript of a doctor-patient conversation with generic speaker labels (e.g., Speaker 1, Speaker 2, SPEAKER_00).
-            Your task:
-            1. Identify from the context who is the doctor and who is the patient.
-            2. Find out the patient's name if they introduce themselves.
-            3. Rewrite the transcript by replacing the generic speaker labels with "Doctor:" and "[Patient's Name]:" (or "Patient:", if no name is mentioned).
-            4. DO NOT change the actual spoken text. Do not add, remove, or summarize anything.
-
-            CRITICAL RULES:
-            - Under no circumstances should you generate a summary, SOAP notes, or extra notes.
-            - Your ONLY task is to replace the speaker labels.
-            - Return ONLY the formatted transcript, starting immediately with the first speaker.
-            """
-    elif lang_code == "de":
-        system_prompt = """
-            Du bist ein hilfreicher Assistent. Hier ist ein Rohtranskript eines Arzt-Patienten-Gesprächs mit generischen Sprecher-Labels (z.B. Speaker 1, Speaker 2, S1, S2 oder SPEAKER_00).
-            Deine Aufgabe:
-            1. Identifiziere anhand des Kontextes, wer der Arzt und wer der Patient ist.
-            2. Finde den Namen des Patienten heraus, falls er sich vorstellt.
-            3. Schreibe das Transkript um, indem du die generischen Sprecher-Labels ersetzt durch "Arzt:" und "[Name des Patienten]:" (oder "Patient(in):", falls kein Name genannt wird).
-            4. Verändere den eigentlichen gesprochenen Text NICHT. Ergänze nichts, lösche nichts, fasse nichts zusammen.
-
-            KRITISCHE REGELN:
-            - Erstelle unter keinen Umständen eine Zusammenfassung, SOAP-Notes oder Diagnosen.
-            - Deine EINZIGE Aufgabe ist das Suchen und Ersetzen der Sprecher-Labels im Text.
-            - Gib AUSSCHLIESSLICH das formatierte Transkript zurück und beginne sofort mit dem ersten Sprecher, ohne einleitende Worte.
-            """
-    else:
-        system_prompt = """
-            You are a helpful assistant. Here is a raw transcript of a doctor-patient conversation with generic speaker labels (e.g., Speaker 1, Speaker 2, SPEAKER_00).
-            Your task:
-            1. Identify from the context who is the doctor and who is the patient.
-            2. Find out the patient's name if they introduce themselves.
-            3. Rewrite the transcript by replacing the generic speaker labels with "Doctor:" / "Arzt:" and "[Patient's Name]:" (or "Patient:", if no name is mentioned), matching the language of the transcript.
-            4. DO NOT change the actual spoken text. Do not add, remove, or summarize anything.
-
-            CRITICAL RULES:
-            - Under no circumstances should you generate a summary, SOAP notes, or extra notes.
-            - Your ONLY task is to replace the speaker labels.
-            - Return ONLY the formatted transcript, starting immediately with the first speaker, without introductory words.
-            """
+    turns = parse_turns(transcript)
+    if not turns:
+        yield transcript
+        return
 
     try:
-        response = active_client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Rohtranskript:\n\n{transcript}"}
-            ],
-            temperature=0.2,
-            stream=True
-        )
-        for chunk in response:
-            if chunk.choices[0].delta.content is not None:
-                yield chunk.choices[0].delta.content
+        labels = distinct_labels(turns)
+        mapping = identify_roles(transcript, labels, active_client, model_name)
+        yield apply_mapping(turns, mapping)
     except Exception as e:
         yield f"Fehler bei der Formatierung: {str(e)}"
 

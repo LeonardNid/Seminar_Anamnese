@@ -5,7 +5,7 @@ import json, subprocess, re
 from pathlib import Path
 
 REPO      = Path(__file__).parent.parent.parent
-DATA_FILE = REPO / "results" / "history_no_speaker.json"
+DATA_FILE = REPO / "results" / "v1_praesentation" / "history_no_speaker.json"
 PROMPT_TPL= (REPO / "skript" / "soap" / "soap_eval_prompt.md").read_text()
 
 with open(DATA_FILE) as f:
